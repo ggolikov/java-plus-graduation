@@ -106,12 +106,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
+                <!-- <configuration>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>com.querydsl</groupId>
                             <artifactId>querydsl-apt</artifactId>
                             <classifier>jakarta</classifier>
+                            <version>5.0.0</version>
                         </path>
                         <path>
                             <groupId>jakarta.persistence</groupId>
@@ -122,7 +123,7 @@
                             <artifactId>lombok</artifactId>
                         </path>
                     </annotationProcessorPaths>
-                </configuration>
+                </configuration> -->
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
