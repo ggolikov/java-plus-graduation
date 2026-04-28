@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      routes:
+        - id: main_service
+          uri: lb://main-service
+          predicates:
+            - Path=/**
+          filters:
+            - PrefixPath=/api/v1
+        - id: stats_server
+          uri: lb://stat_server
+          predicates:
+            - Path=/stats/**
+      discovery.locator.enabled: true
+    routes:
+      - id: main_service
+        uri: lb://main-service
+        predicates:
+          - Path=/**
+        filters:
+          - PrefixPath=/api/v1
+      - id: stats_server
+        uri: lb://stat_server
+        predicates:
+          - Path=/stats/**
+server:
+  port: 8080
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"

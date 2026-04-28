@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: stats-server
+  cloud:
+    openfeign:
+      enabled: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/stats}
+    driver-class-name: org.postgresql.Driver
+    username: stats
+    password: stats
+  sql:
+    init:
+      mode: always
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none
+    open-in-view: false
+    show-sql: false
+
+server:
+  port: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
