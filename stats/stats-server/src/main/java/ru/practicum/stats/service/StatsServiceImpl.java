@@ -24,6 +24,7 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional(readOnly = false)
     public void saveHit(EndpointHitDto hit) {
+        log.info(hit.toString());
         EndpointHitEntity entity = EndpointHitMapper.toEntity(hit);
         log.info("save endpoint hit {}", entity);
         hitRepository.save(entity);
