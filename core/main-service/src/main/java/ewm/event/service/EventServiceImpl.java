@@ -19,6 +19,7 @@ import ewm.user.model.User;
 import ewm.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,10 +29,7 @@ import ru.practicum.ewm.stats.dto.EndpointHitDto;
 import ru.practicum.ewm.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
+    @Qualifier("client.StatsClient")
     private final StatsClient statsClient;
     private final ParticipationRequestRepository participationRequestRepository;
 
@@ -262,7 +261,7 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime start = eventList.stream()
                 .map(Event::getCreatedOn)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .min(Comparator.naturalOrder())
                 .orElse(LocalDateTime.now().minusYears(1));
 
