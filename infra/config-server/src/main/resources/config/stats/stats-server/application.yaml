@@ -13,10 +13,11 @@ spring:
     init:
       mode: always
   jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
     defer-datasource-initialization: true
-    hibernate:
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      ddl-auto: none
     open-in-view: false
     show-sql: false
 

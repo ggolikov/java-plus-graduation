@@ -35,7 +35,7 @@
 	</properties>
 
 	<modules>
-		<module>stats-service</module>
+		<module>stats</module>
         <module>infra</module>
 		<module>core</module>
 	</modules>

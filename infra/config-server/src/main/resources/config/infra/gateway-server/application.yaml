@@ -4,33 +4,58 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: main_service
+        - id: main_service_users
           uri: lb://main-service
           predicates:
-            - Path=/**
-          filters:
-            - PrefixPath=/api/v1
-        - id: stats_server
-          uri: lb://stat_server
+            - Path=/users/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: main_service_admin
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: main_service_compilations
+          uri: lb://main-service
+          predicates:
+            - Path=/compilations/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: main_service_events
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: main_service_categories
+          uri: lb://main-service
+          predicates:
+            - Path=/categories/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: main_service_comments
+          uri: lb://main-service
+          predicates:
+            - Path=/comments/**
+#          filters:
+#            - PrefixPath=/api/v1
+        - id: stats_server_hit
+          uri: lb://stats-server
+          predicates:
+            - Path=/hit
+        - id: stats_server_stats
+          uri: lb://stats-server
           predicates:
             - Path=/stats/**
-      discovery.locator.enabled: true
-    routes:
-      - id: main_service
-        uri: lb://main-service
-        predicates:
-          - Path=/**
-        filters:
-          - PrefixPath=/api/v1
-      - id: stats_server
-        uri: lb://stat_server
-        predicates:
-          - Path=/stats/**
+      discovery:
+        locator:
+          enabled: true
 server:
   port: 8080
 
-  management:
-    endpoints:
-      web:
-        exposure:
-          include: "*"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
