@@ -22,7 +22,7 @@ spring:
     show-sql: false
 
 server:
-  port: 0
+  port: 9090
 
 management:
   endpoints:
