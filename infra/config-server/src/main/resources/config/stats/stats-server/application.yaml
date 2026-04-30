@@ -5,10 +5,10 @@ spring:
     openfeign:
       enabled: false
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/stats}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
     driver-class-name: org.postgresql.Driver
-    username: stats
-    password: stats
+    username: postgres
+    password: postgres
   sql:
     init:
       mode: always
