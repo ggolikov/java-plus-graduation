@@ -51,7 +51,7 @@ public class StatsClientImpl implements StatsClient {
     public void hit(EndpointHitDto endpointHit) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
-                .path("http://localhost:9090/hit")
+                .path("/hit")
                 .toUriString();
         HttpEntity<EndpointHitDto> request = new HttpEntity<>(endpointHit);
         log.info(url);
