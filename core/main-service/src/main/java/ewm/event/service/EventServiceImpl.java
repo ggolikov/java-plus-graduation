@@ -19,6 +19,7 @@ import ewm.user.model.User;
 import ewm.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import ru.practicum.ewm.stats.dto.ViewStatsDto;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -38,7 +40,6 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
-    @Qualifier("client.StatsClient")
     private final StatsClient statsClient;
     private final ParticipationRequestRepository participationRequestRepository;
 
@@ -249,6 +250,7 @@ public class EventServiceImpl implements EventService {
         endpointHitDto.setUri(request.getRequestURI());
         endpointHitDto.setIp(request.getRemoteAddr());
         endpointHitDto.setTimestamp(LocalDateTime.now());
+        log.info(endpointHitDto.toString());
          statsClient.hit(endpointHitDto);
     }
 

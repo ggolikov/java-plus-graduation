@@ -51,10 +51,10 @@ public class StatsClientImpl implements StatsClient {
     public void hit(EndpointHitDto endpointHit) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
-                .path("/hit")
+                .path("http://localhost:9090/hit")
                 .toUriString();
-
         HttpEntity<EndpointHitDto> request = new HttpEntity<>(endpointHit);
+        log.info(url);
         restTemplate.postForEntity(url, request, Void.class);
     }
 
