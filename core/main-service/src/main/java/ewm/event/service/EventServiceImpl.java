@@ -105,7 +105,7 @@ public class EventServiceImpl implements EventService {
         }
 
         List<Event> eventList = List.of(event);
-        registerHit(request);
+       //  registerHit(request);
 
         return this.mapToEventFullDto(eventList).getFirst();
     }
@@ -250,8 +250,7 @@ public class EventServiceImpl implements EventService {
         endpointHitDto.setUri(request.getRequestURI());
         endpointHitDto.setIp(request.getRemoteAddr());
         endpointHitDto.setTimestamp(LocalDateTime.now());
-        log.info(endpointHitDto.toString());
-         statsClient.hit(endpointHitDto);
+        statsClient.hit(endpointHitDto);
     }
 
     private Map<Long, Integer> getEventsViews(List<Event> eventList) {
