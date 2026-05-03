@@ -110,7 +110,9 @@ public class EventServiceImpl implements EventService {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
-            return this.mapToEventFullDto(eventList).getFirst();
+            EventFullDto eventFullDto = this.mapToEventFullDto(eventList).getFirst();
+            eventFullDto.setViews(eventFullDto.getViews() + 1);
+            return eventFullDto;
         }
     }
 
