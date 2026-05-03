@@ -40,6 +40,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
+    @Qualifier("statsFeign")
     private final StatsClient statsClient;
     private final ParticipationRequestRepository participationRequestRepository;
 
@@ -105,7 +106,7 @@ public class EventServiceImpl implements EventService {
         }
 
         List<Event> eventList = List.of(event);
-       //  registerHit(request);
+         registerHit(request);
 
         return this.mapToEventFullDto(eventList).getFirst();
     }
