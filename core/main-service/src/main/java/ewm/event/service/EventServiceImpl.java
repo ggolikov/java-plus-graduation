@@ -104,7 +104,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event is not published");
         }
 
-        List<Event> eventList = List.of(event);
+        List<Event> eventList = List.of(event, event);
         try {
             registerHit(request);
         } catch (Exception e) {
