@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
 
         List<Event> eventList = List.of(event, event);
         try {
-            // registerHit(request);
+             registerHit(request);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
