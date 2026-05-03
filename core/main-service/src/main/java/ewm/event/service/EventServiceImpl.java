@@ -40,7 +40,6 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
-    @Qualifier("statsFeign")
     private final StatsClient statsClient;
     private final ParticipationRequestRepository participationRequestRepository;
 
