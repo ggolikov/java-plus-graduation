@@ -27,7 +27,11 @@ public class StatsServiceImpl implements StatsService {
         log.info(hit.toString());
         EndpointHitEntity entity = EndpointHitMapper.toEntity(hit);
         log.info("save endpoint hit {}", entity);
-        hitRepository.save(entity);
+        try {
+            hitRepository.save(entity);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     @Override

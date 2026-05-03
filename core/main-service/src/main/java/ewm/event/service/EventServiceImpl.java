@@ -250,7 +250,7 @@ public class EventServiceImpl implements EventService {
         endpointHitDto.setUri(request.getRequestURI());
         endpointHitDto.setIp(request.getRemoteAddr());
         endpointHitDto.setTimestamp(LocalDateTime.now());
-        // statsClient.hit(endpointHitDto);
+        statsClient.hit(endpointHitDto);
     }
 
     private Map<Long, Integer> getEventsViews(List<Event> eventList) {
