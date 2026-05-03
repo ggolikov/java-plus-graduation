@@ -40,14 +40,14 @@ spring:
             - Path=/comments/**
           filters:
             - PrefixPath=/
-#        - id: stats_server_hit
-#          uri: lb://stats-server
-#          predicates:
-#            - Path=/hit
-#        - id: stats_server_stats
-#          uri: lb://stats-server
-#          predicates:
-#            - Path=/stats/**
+        - id: stats_server_hit
+          uri: lb://stats-server
+          predicates:
+            - Path=/hit
+        - id: stats_server_stats
+          uri: lb://stats-server
+          predicates:
+            - Path=/stats/**
       discovery:
         locator:
           enabled: true

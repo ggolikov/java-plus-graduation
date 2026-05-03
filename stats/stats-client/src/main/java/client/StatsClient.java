@@ -1,5 +1,6 @@
 package client;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,13 @@ import ru.practicum.ewm.stats.dto.ViewStatsDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "stats-server")
+@FeignClient(
+        name = "stats-server",
+        url = "${stats.service.url:http://localhost:9090}"
+)
+@Qualifier("statsFeign")
 public interface StatsClient {
+
     @PostMapping("/hit")
     void hit(@RequestBody EndpointHitDto endpointHit);
 
