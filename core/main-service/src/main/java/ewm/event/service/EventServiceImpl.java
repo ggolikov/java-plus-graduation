@@ -95,7 +95,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
@@ -104,14 +104,15 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event is not published");
         }
 
-        List<Event> eventList = List.of(event);
         try {
             registerHit(request);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-        } finally {
-            return this.mapToEventFullDto(eventList).getFirst();
         }
+
+        event.setViews(event.getViews() + 1);
+        event = eventRepository.save(event);
+        return this.mapToEventFullDto(List.of(event)).getFirst();
     }
 
     @Override
@@ -194,7 +195,6 @@ public class EventServiceImpl implements EventService {
 
         isEventTimeValid(updatedEvent.getEventDate());
         updatedEvent = eventRepository.save(updatedEvent);
-
 
         List<Event> eventList = List.of(updatedEvent);
 
@@ -297,7 +297,10 @@ public class EventServiceImpl implements EventService {
         return eventList.stream()
                 .map(e -> EventMapper.mapToEventFullDto(
                         e,
-                        views.getOrDefault(e.getId(), 0),
+                        Math.max(
+                                views.getOrDefault(e.getId(), 0),
+                                e.getViews() == null ? 0L : e.getViews()
+                        ),
                         confirmed.getOrDefault(e.getId(), 0L)
                 ))
                 .toList();
@@ -327,7 +330,10 @@ public class EventServiceImpl implements EventService {
         return eventList.stream()
                 .map(e -> EventMapper.mapToEventShortDto(
                         e,
-                        views.getOrDefault(e.getId(), 0),
+                        Math.max(
+                                views.getOrDefault(e.getId(), 0),
+                                e.getViews() == null ? 0L : e.getViews()
+                        ),
                         confirmed.getOrDefault(e.getId(), 0L)
                 ))
                 .toList();

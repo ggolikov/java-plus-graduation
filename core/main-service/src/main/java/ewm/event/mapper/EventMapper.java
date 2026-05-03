@@ -30,6 +30,7 @@ public class EventMapper {
         event.setPaid(eventDto.getPaid() != null ? eventDto.getPaid() : false);
         event.setParticipantLimit(eventDto.getParticipantLimit() != null ? eventDto.getParticipantLimit() : 0);
         event.setRequestModeration(eventDto.getRequestModeration() != null ? eventDto.getRequestModeration() : true);
+        event.setViews(0L);
         return event;
     }
 

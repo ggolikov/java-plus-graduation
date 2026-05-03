@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS events (
     created_on TIMESTAMP NOT NULL,
     published_on TIMESTAMP,
     confirmed_requests INTEGER,
+    views BIGINT NOT NULL DEFAULT 0,
     state VARCHAR(20) NOT NULL,
     CONSTRAINT pk_event PRIMARY KEY (id)
     );
