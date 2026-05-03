@@ -105,7 +105,7 @@ public class EventServiceImpl implements EventService {
         }
 
         List<Event> eventList = List.of(event);
-         registerHit(request);
+        registerHit(request);
 
         return this.mapToEventFullDto(eventList).getFirst();
     }
