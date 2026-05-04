@@ -155,7 +155,7 @@ public class EventServiceImpl implements EventService {
             page = PageRequest.of(from / size, size);
         }
 
-         // registerHit(request);
+         registerHit(request);
 
         List<Event> eventList = databaseEventSearchRepository.findPublicEvents(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, page
