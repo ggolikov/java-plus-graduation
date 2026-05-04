@@ -17,8 +17,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        ddl-auto: validate
-        format_sql: true
+        ddl-auto: none
+        format_sql: false
     defer-datasource-initialization: false
     open-in-view: false
     show-sql: true

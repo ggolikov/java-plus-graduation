@@ -60,11 +60,3 @@ CREATE TABLE IF NOT EXISTS comments (
     created_on TIMESTAMP NOT NULL,
     updated_on TIMESTAMP
 );
-
-CREATE TABLE IF NOT EXISTS hits (
-    id BIGSERIAL PRIMARY KEY,
-    app VARCHAR(255) NOT NULL,
-    uri VARCHAR(255) NOT NULL,
-    ip VARCHAR(64) NOT NULL,
-    timestamp TIMESTAMP NOT NULL
-);
