@@ -5,10 +5,11 @@ spring:
     openfeign:
       enabled: false
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    url: jdbc:postgresql://stats-db:5432/stats
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+    username: stats
+    password: stats
+    init: DEBUG
   sql:
     init:
       mode: always
@@ -17,9 +18,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: none
-    defer-datasource-initialization: true
+        format_sql: false
+    defer-datasource-initialization: false
     open-in-view: false
-    show-sql: false
+    show-sql: true
 
 server:
   port: 9090
