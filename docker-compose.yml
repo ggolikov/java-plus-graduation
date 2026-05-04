@@ -1,15 +1,15 @@
-services:
-  stats-db:
-    image: postgres:16.1
-    container_name: postgres-ewm-stats-db
-    environment:
-      POSTGRES_DB: stats
-      POSTGRES_USER: stats
-      POSTGRES_PASSWORD: stats
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stats"]
-      interval: 5s
-      retries: 5
+#services:
+#  stats-db:
+#    image: postgres:16.1
+#    container_name: postgres-ewm-stats-db
+#    environment:
+#      POSTGRES_DB: stats
+#      POSTGRES_USER: stats
+#      POSTGRES_PASSWORD: stats
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U stats"]
+#      interval: 5s
+#      retries: 5
 #  postgres:
 #    image: postgres:16.1
 #    container_name: postgres
