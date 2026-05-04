@@ -4,20 +4,20 @@ spring:
   cloud:
     openfeign:
       enabled: false
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
-    driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+#  datasource:
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+#    driver-class-name: org.postgresql.Driver
+#    username: postgres
+#    password: postgres
   sql:
     init:
-      mode: always
+      mode: never
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: update
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     open-in-view: false
     show-sql: true
 
