@@ -16,50 +16,50 @@ spring:
             - Path=/admin/users/**
           filters:
             - PrefixPath=/
-        - id: main_service_compilations
-          uri: lb://main-service
+        - id: event_service_compilations
+          uri: lb://event-service
           predicates:
             - Path=/compilations/**
           filters:
             - PrefixPath=/
-        - id: main_service_admin_compilations
-          uri: lb://main-service
+        - id: event_service_admin_compilations
+          uri: lb://event-service
           predicates:
             - Path=/admin/compilations/**
           filters:
             - PrefixPath=/
-        - id: main_service_events
-          uri: lb://main-service
+        - id: event_service_events
+          uri: lb://event-service
           predicates:
             - Path=/events/**
           filters:
             - PrefixPath=/
-        - id: main_service_admin_events
-          uri: lb://main-service
+        - id: event_service_admin_events
+          uri: lb://event-service
           predicates:
             - Path=/admin/events/**
           filters:
             - PrefixPath=/
-        - id: main_service_categories
-          uri: lb://main-service
+        - id: event_service_categories
+          uri: lb://event-service
           predicates:
             - Path=/categories/**
           filters:
             - PrefixPath=/
-        - id: main_service_admin_categories
-          uri: lb://main-service
+        - id: event_service_admin_categories
+          uri: lb://event-service
           predicates:
             - Path=/admin/categories/**
           filters:
             - PrefixPath=/
-        - id: main_service_comments
-          uri: lb://main-service
+        - id: event_service_comments
+          uri: lb://event-service
           predicates:
             - Path=/comments/**
           filters:
             - PrefixPath=/
-        - id: main_service_admin_comments
-          uri: lb://main-service
+        - id: event_service_admin_comments
+          uri: lb://event-service
           predicates:
             - Path=/admin/comments/**
           filters:
