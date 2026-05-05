@@ -13,7 +13,7 @@ import ewm.request.model.ParticipationRequest;
 import ewm.request.model.RequestStatus;
 import ewm.request.repository.ParticipationRequestRepository;
 import ewm.user.client.UserClient;
-import ewm.user.model.User;
+import ewm.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +35,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
-        User user = userClient.findById(userId)
+        UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
@@ -58,7 +58,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         }
 
         ParticipationRequest req = new ParticipationRequest();
-        req.setRequesterId(user.getUserId());
+        req.setRequesterId(user.getId());
         req.setEvent(event);
 
 //        boolean moderation = event.getRequestModeration();

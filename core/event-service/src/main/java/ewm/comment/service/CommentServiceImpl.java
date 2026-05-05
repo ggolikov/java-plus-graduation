@@ -13,7 +13,7 @@ import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.repository.EventRepository;
 import ewm.user.client.UserClient;
-import ewm.user.model.User;
+import ewm.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto create(Long userId, Long eventId, NewCommentDto newCommentDto) {
-        User user = userClient.findById(userId)
+        UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
         Event event = eventRepository.findById(eventId)
@@ -44,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Comment comment = CommentMapper.mapToComment(newCommentDto);
-        comment.setAuthorId(user.getUserId());
+        comment.setAuthorId(user.getId());
         comment.setEvent(event);
         comment.setStatus(CommentStatus.NEW);
 

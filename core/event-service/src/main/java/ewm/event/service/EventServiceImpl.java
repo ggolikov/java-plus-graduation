@@ -16,7 +16,7 @@ import ewm.event.repository.DatabaseEventSearchRepository;
 import ewm.event.repository.EventRepository;
 import ewm.request.repository.ParticipationRequestRepository;
 import ewm.user.client.UserClient;
-import ewm.user.model.User;
+import ewm.user.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto create(Long userId, NewEventDto eventDto) {
         isEventTimeValid(eventDto.getEventDate());
 
-        User user = userClient.findById(userId)
+        UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Category category = categoryRepository.findById(eventDto.getCategory())

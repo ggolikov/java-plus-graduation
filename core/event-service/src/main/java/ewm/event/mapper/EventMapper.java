@@ -8,15 +8,15 @@ import ewm.event.dto.*;
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateAction;
-import ewm.user.model.User;
+import ewm.user.dto.UserDto;
 
 public class EventMapper {
 
-    public static Event mapToEvent(User initiator,
+    public static Event mapToEvent(UserDto initiator,
                                    NewEventDto eventDto,
                                    Category category) {
         Event event = new Event();
-        event.setInitiatorId(initiator.getUserId());
+        event.setInitiatorId(initiator.getId());
         event.setTitle(eventDto.getTitle());
         event.setAnnotation(eventDto.getAnnotation());
         event.setDescription(eventDto.getDescription());
