@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface EventRepository {
     Event save(Event event);
 
-    List<Event> findByInitiatorUserId(Long initiatorId, Pageable page);
+    List<Event> findByInitiatorId(Long initiatorId, Pageable page);
 
     List<Event> findForAdmin(List<Long> users,
                              List<EventState> states,

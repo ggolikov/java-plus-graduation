@@ -28,7 +28,7 @@ public class DatabaseEventSearchRepository {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (users != null && !users.isEmpty()) {
-            builder.and(event.initiator.userId.in(users));
+            builder.and(event.initiatorId.in(users));
         }
 
         if (states != null && !states.isEmpty()) {

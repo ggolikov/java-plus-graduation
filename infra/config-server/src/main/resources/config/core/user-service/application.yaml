@@ -5,10 +5,11 @@ spring:
     openfeign:
       enabled: true
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/user}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/user}
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: postgres
+    username: user
+    password: user
+    init: DEBUG
   sql:
     init:
       mode: always

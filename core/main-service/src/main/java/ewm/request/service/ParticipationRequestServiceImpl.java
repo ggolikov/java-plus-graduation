@@ -12,8 +12,8 @@ import ewm.request.mapper.ParticipationRequestMapper;
 import ewm.request.model.ParticipationRequest;
 import ewm.request.model.RequestStatus;
 import ewm.request.repository.ParticipationRequestRepository;
+import ewm.user.client.UserClient;
 import ewm.user.model.User;
-import ewm.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,18 +29,18 @@ import java.util.stream.Collectors;
 public class ParticipationRequestServiceImpl implements ParticipationRequestService {
 
     private final ParticipationRequestRepository requestRepo;
-    private final UserRepository userRepo;
+    private final UserClient userClient;
     private final EventRepository eventRepo;
 
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
-        User user = userRepo.findById(userId)
+        User user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
 
-        if (Objects.equals(event.getInitiator().getUserId(), userId)) {
+        if (Objects.equals(event.getInitiatorId(), userId)) {
             throw new ConflictException("Initiator cannot request own event");
         }
         if (event.getState() != EventState.PUBLISHED) {
@@ -118,7 +118,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
-        if (!Objects.equals(event.getInitiator().getUserId(), userId)) {
+        if (!Objects.equals(event.getInitiatorId(), userId)) {
             throw new ConflictException("Only initiator can view event requests");
         }
         return requestRepo.findAllByEventId(eventId).stream()
@@ -137,7 +137,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         Event event = eventRepo.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
 
-        if (!Objects.equals(event.getInitiator().getUserId(), userId)) {
+        if (!Objects.equals(event.getInitiatorId(), userId)) {
             throw new ConflictException("Only initiator can update requests");
         }
 
@@ -200,7 +200,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     }
 
     private void ensureUserExists(Long userId) {
-        if (!userRepo.existsById(userId)) {
+        if (!userClient.existsById(userId)) {
             throw new NotFoundException("User not found: " + userId);
         }
     }

@@ -4,16 +4,16 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: main_service_users
-          uri: lb://main-service
+        - id: user_service
+          uri: lb://user-service
           predicates:
             - Path=/users/**
           filters:
             - PrefixPath=/
-        - id: main_service_admin
-          uri: lb://main-service
+        - id: user_service_admin
+          uri: lb://user-service
           predicates:
-            - Path=/admin/**
+            - Path=/admin/users/**
           filters:
             - PrefixPath=/
         - id: main_service_compilations
@@ -22,10 +22,22 @@ spring:
             - Path=/compilations/**
           filters:
             - PrefixPath=/
+        - id: main_service_admin_compilations
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/compilations/**
+          filters:
+            - PrefixPath=/
         - id: main_service_events
           uri: lb://main-service
           predicates:
             - Path=/events/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_admin_events
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/events/**
           filters:
             - PrefixPath=/
         - id: main_service_categories
@@ -34,10 +46,22 @@ spring:
             - Path=/categories/**
           filters:
             - PrefixPath=/
+        - id: main_service_admin_categories
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/categories/**
+          filters:
+            - PrefixPath=/
         - id: main_service_comments
           uri: lb://main-service
           predicates:
             - Path=/comments/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_admin_comments
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/comments/**
           filters:
             - PrefixPath=/
       discovery:

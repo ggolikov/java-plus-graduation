@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/users/{userId}")
+@RequestMapping
 public class CommentPrivateController {
     private final CommentService commentService;
 

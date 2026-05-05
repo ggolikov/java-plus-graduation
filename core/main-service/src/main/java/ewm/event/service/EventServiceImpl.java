@@ -15,8 +15,8 @@ import ewm.event.model.EventStateActionAdmin;
 import ewm.event.repository.DatabaseEventSearchRepository;
 import ewm.event.repository.EventRepository;
 import ewm.request.repository.ParticipationRequestRepository;
+import ewm.user.client.UserClient;
 import ewm.user.model.User;
-import ewm.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-    private final UserRepository userRepository;
+    private final UserClient userClient;
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
@@ -47,7 +47,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto create(Long userId, NewEventDto eventDto) {
         isEventTimeValid(eventDto.getEventDate());
 
-        User user = userRepository.findById(userId)
+        User user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Category category = categoryRepository.findById(eventDto.getCategory())
@@ -68,7 +68,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto get(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
-        if (!event.getInitiator().getUserId().equals(userId)) {
+        if (!event.getInitiatorId().equals(userId)) {
             throw new NotFoundException("Event not found");
         }
 
@@ -113,12 +113,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventShortDto> getEvents(Long userId, int from, int size) {
-        userRepository.findById(userId)
+        userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Pageable page = PageRequest.of(from / size, size);
 
-        List<Event> eventList = eventRepository.findByInitiatorUserId(userId, page);
+        List<Event> eventList = eventRepository.findByInitiatorId(userId, page);
 
         return this.mapToEventShortDto(eventList);
     }
@@ -175,7 +175,7 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Event is already published");
         }
 
-        if (!currentEvent.getInitiator().getUserId().equals(userId)) {
+        if (!currentEvent.getInitiatorId().equals(userId)) {
             throw new BadRequestException("User not allowed to update event");
         }
 

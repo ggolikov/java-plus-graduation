@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = "client")
+@EnableFeignClients(basePackages = {"client", "ewm.user.client"})
 @ComponentScan(basePackages = {"ru.practicum", "ewm", "client"})
 public class MainApplication {
     public static void main(String[] args) {
