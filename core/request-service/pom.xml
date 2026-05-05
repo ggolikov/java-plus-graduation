@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>request-service</artifactId>
-
+    <version>0.0.1-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -112,6 +112,13 @@
                             <mainClass>ewm.RequestApplication</mainClass>
                         </manifest>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <classifier>exec</classifier>
                 </configuration>
             </plugin>
         </plugins>
