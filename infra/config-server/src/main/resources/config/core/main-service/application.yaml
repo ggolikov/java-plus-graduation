@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: main-service
+  cloud:
+    openfeign:
+      enabled: true
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    init: DEBUG
+  sql:
+    init:
+      mode: always
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
+        format_sql: false
+    defer-datasource-initialization: true
+    open-in-view: false
+    show-sql: true
+
+server:
+  port: 0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

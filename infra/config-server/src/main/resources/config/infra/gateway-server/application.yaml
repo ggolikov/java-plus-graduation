@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      routes:
+        - id: main_service_users
+          uri: lb://main-service
+          predicates:
+            - Path=/users/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_admin
+          uri: lb://main-service
+          predicates:
+            - Path=/admin/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_compilations
+          uri: lb://main-service
+          predicates:
+            - Path=/compilations/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_events
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_categories
+          uri: lb://main-service
+          predicates:
+            - Path=/categories/**
+          filters:
+            - PrefixPath=/
+        - id: main_service_comments
+          uri: lb://main-service
+          predicates:
+            - Path=/comments/**
+          filters:
+            - PrefixPath=/
+      discovery:
+        locator:
+          enabled: true
+      metrics:
+        enabled: true
+server:
+  port: 8080
+
+management:
+  endpoint:
+    gateway:
+      enabled: true
+      access: read-only
+  endpoints:
+    web:
+      exposure:
+        include: gateway
