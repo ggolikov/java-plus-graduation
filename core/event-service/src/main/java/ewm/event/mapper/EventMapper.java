@@ -8,7 +8,6 @@ import ewm.event.dto.*;
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateAction;
-import ewm.user.mapper.UserMapper;
 import ewm.user.model.User;
 
 public class EventMapper {

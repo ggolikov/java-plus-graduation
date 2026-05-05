@@ -3,7 +3,6 @@ package ewm.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import ewm.category.dto.CategoryDto;
 import ewm.common.dto.LocationDto;
-import ewm.user.dto.UserShortDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
