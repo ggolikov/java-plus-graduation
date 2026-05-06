@@ -14,7 +14,7 @@ public final class EventInternalMapper {
         EventInternalDto dto = new EventInternalDto();
         dto.setId(event.getId());
         dto.setInitiatorId(event.getInitiatorId());
-        dto.setCategoryId(event.getCategory() == null ? null : event.getCategory().getId());
+        dto.setCategoryId(event.getCategoryId() == null ? null : event.getCategoryId());
         dto.setAnnotation(event.getAnnotation());
         dto.setDescription(event.getDescription());
         dto.setTitle(event.getTitle());
@@ -36,9 +36,7 @@ public final class EventInternalMapper {
         event.setId(dto.getId());
         event.setInitiatorId(dto.getInitiatorId());
         if (dto.getCategoryId() != null) {
-            Category category = new Category();
-            category.setId(dto.getCategoryId());
-            event.setCategory(category);
+            event.setCategoryId(dto.getCategoryId());
         }
         event.setAnnotation(dto.getAnnotation());
         event.setDescription(dto.getDescription());

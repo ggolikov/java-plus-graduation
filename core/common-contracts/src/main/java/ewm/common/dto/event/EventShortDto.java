@@ -10,13 +10,13 @@ public class EventShortDto {
     private Long id;
     private String title;
     private String annotation;
-    private Long categoryId;
+    private Long category;
     private Long confirmedRequests;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    private Long initiatorId;
+    private Long initiator;
     private Boolean paid;
     private Long views;
 }

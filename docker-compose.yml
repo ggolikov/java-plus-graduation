@@ -41,6 +41,20 @@ services:
       interval: 5s
       retries: 5
 
+  comment-db:
+    image: postgres:16.1
+    container_name: comment-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: comment
+      POSTGRES_USER: comment
+      POSTGRES_PASSWORD: comment
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U comment" ]
+      interval: 5s
+      retries: 5
+
   stats-db:
     image: postgres:16.1
     container_name: postgres-ewm-stats-db

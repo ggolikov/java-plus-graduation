@@ -26,9 +26,7 @@ public class Event {
 
     /* === Relations === */
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private Long categoryId;
 
     /* === Basic fields === */
 

@@ -11,11 +11,11 @@ import java.util.Optional;
 
 public interface DatabaseCommentRepository extends CommentRepository, JpaRepository<Comment, Long> {
     @Override
-    @Query("SELECT c FROM Comment c WHERE c.event.id = :eventId ORDER BY c.createdOn DESC")
+    @Query("SELECT c FROM Comment c WHERE c.eventId = :eventId ORDER BY c.createdOn DESC")
     List<Comment> findByEventId(Long eventId, Pageable page);
 
     @Override
-    @Query("SELECT c FROM Comment c WHERE c.event.id = :eventId AND c.status = :status ORDER BY c.createdOn DESC")
+    @Query("SELECT c FROM Comment c WHERE c.eventId = :eventId AND c.status = :status ORDER BY c.createdOn DESC")
     List<Comment> findByEventIdAndStatus(Long eventId, CommentStatus status, Pageable page);
 
     @Override

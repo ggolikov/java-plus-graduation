@@ -18,7 +18,7 @@ import ewm.event.model.EventState;
 import ewm.event.model.EventStateActionAdmin;
 import ewm.event.repository.DatabaseEventSearchRepository;
 import ewm.user.client.UserClient;
-import ewm.user.dto.UserDto;
+import ewm.common.dto.user.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,10 +52,7 @@ public class EventServiceImpl implements EventService {
         UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Category category = categoryRepository.findById(eventDto.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("Category not found"));
-
-        Event event = EventMapper.mapToEvent(user, eventDto, category);
+        Event event = EventMapper.mapToEvent(user, eventDto, eventDto.getCategory());
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
         event = fromInternalDto(eventClient.save(toInternalDto(event)));
@@ -184,10 +181,8 @@ public class EventServiceImpl implements EventService {
         Event updatedEvent = EventMapper.updateEvent(currentEvent, updateEventUserRequest);
 
         if (updateEventUserRequest.hasCategory() &&
-                !updatedEvent.getCategory().getId().equals(updateEventUserRequest.getCategory())) {
-            Category category = categoryRepository.findById(updateEventUserRequest.getCategory())
-                            .orElseThrow(() -> new NotFoundException("Category not found"));
-            updatedEvent.setCategory(category);
+                !updatedEvent.getCategoryId().equals(updateEventUserRequest.getCategory())) {
+            updatedEvent.setCategoryId(updateEventUserRequest.getCategory());
         }
 
         isEventTimeValid(updatedEvent.getEventDate());
@@ -227,10 +222,8 @@ public class EventServiceImpl implements EventService {
         Event updatedEvent = EventMapper.updateEvent(currentEvent, updateEventAdminRequest);
 
         if (updateEventAdminRequest.hasCategory() &&
-                !updatedEvent.getCategory().getId().equals(updateEventAdminRequest.getCategory())) {
-            Category category = categoryRepository.findById(updateEventAdminRequest.getCategory())
-                    .orElseThrow(() -> new NotFoundException("Category not found"));
-            updatedEvent.setCategory(category);
+                !updatedEvent.getCategoryId().equals(updateEventAdminRequest.getCategory())) {
+            updatedEvent.setCategoryId(updateEventAdminRequest.getCategory());
         }
 
         updatedEvent = fromInternalDto(eventClient.save(toInternalDto(updatedEvent)));
@@ -335,7 +328,7 @@ public class EventServiceImpl implements EventService {
         EventInternalDto dto = new EventInternalDto();
         dto.setId(event.getId());
         dto.setInitiatorId(event.getInitiatorId());
-        dto.setCategoryId(event.getCategory() == null ? null : event.getCategory().getId());
+        dto.setCategoryId(event.getCategoryId() == null ? null : event.getCategoryId());
         dto.setAnnotation(event.getAnnotation());
         dto.setDescription(event.getDescription());
         dto.setTitle(event.getTitle());
@@ -362,7 +355,7 @@ public class EventServiceImpl implements EventService {
         if (dto.getCategoryId() != null) {
             Category category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category not found"));
-            event.setCategory(category);
+            event.setCategoryId(dto.getCategoryId());
         }
         if (dto.getLat() != null && dto.getLon() != null) {
             ewm.common.model.Location location = new ewm.common.model.Location();

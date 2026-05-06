@@ -9,12 +9,11 @@ import ewm.comment.repository.CommentRepository;
 import ewm.common.dto.comment.CommentDto;
 import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
+import ewm.common.model.EventState;
 import ewm.event.client.EventClient;
 import ewm.event.client.dto.EventInternalDto;
-import ewm.event.model.Event;
-import ewm.event.model.EventState;
 import ewm.user.client.UserClient;
-import ewm.user.dto.UserDto;
+import ewm.common.dto.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +45,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = CommentMapper.mapToComment(newCommentDto);
         comment.setAuthorId(user.getId());
-        Event eventRef = new Event();
-        eventRef.setId(event.getId());
-        comment.setEvent(eventRef);
+        comment.setEventId(eventId);
         comment.setStatus(CommentStatus.NEW);
 
         Comment saved = commentRepository.save(comment);

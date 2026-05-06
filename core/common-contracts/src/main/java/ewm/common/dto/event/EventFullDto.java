@@ -12,7 +12,7 @@ public class EventFullDto {
     private String title;
     private String annotation;
     private String description;
-    private Long categoryId;
+    private Long category;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
@@ -23,7 +23,7 @@ public class EventFullDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
 
-    private Long initiatorId;
+    private Long initiator;
     private LocationDto location;
     private Boolean paid;
     private Integer participantLimit;

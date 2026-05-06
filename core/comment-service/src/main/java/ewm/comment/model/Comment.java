@@ -1,6 +1,5 @@
 package ewm.comment.model;
 
-import ewm.event.model.Event;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,9 +23,7 @@ public class Comment {
 
     private Long authorId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id")
-    private Event event;
+    private Long eventId;
 
     @Column(nullable = false, length = 5000)
     private String text;

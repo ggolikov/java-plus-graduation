@@ -5,6 +5,7 @@ import ewm.category.model.Category;
 import ewm.common.dto.LocationDto;
 import ewm.common.dto.event.EventFullDto;
 import ewm.common.dto.event.EventShortDto;
+import ewm.common.dto.user.UserDto;
 import ewm.common.model.Location;
 import ewm.event.dto.NewEventDto;
 import ewm.event.dto.UpdateEventAdminRequest;
@@ -12,19 +13,18 @@ import ewm.event.dto.UpdateEventUserRequest;
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateAction;
-import ewm.user.dto.UserDto;
 
 public class EventMapper {
 
     public static Event mapToEvent(UserDto initiator,
                                    NewEventDto eventDto,
-                                   Category category) {
+                                   Long categoryId) {
         Event event = new Event();
         event.setInitiatorId(initiator.getId());
         event.setTitle(eventDto.getTitle());
         event.setAnnotation(eventDto.getAnnotation());
         event.setDescription(eventDto.getDescription());
-        event.setCategory(category);
+        event.setCategoryId(categoryId);
         event.setEventDate(eventDto.getEventDate());
         Location location = new Location();
         location.setLat(eventDto.getLocation().getLat());
@@ -42,11 +42,11 @@ public class EventMapper {
         eventFullDto.setTitle(event.getTitle());
         eventFullDto.setAnnotation(event.getAnnotation());
         eventFullDto.setDescription(event.getDescription());
-        eventFullDto.setCategoryId(event.getCategory().getId());
+        eventFullDto.setCategory(event.getCategoryId());
         eventFullDto.setCreatedOn(event.getCreatedOn());
         eventFullDto.setEventDate(event.getEventDate());
         eventFullDto.setPublishedOn(event.getPublishedOn());
-        eventFullDto.setInitiatorId(event.getInitiatorId());
+        eventFullDto.setInitiator(event.getInitiatorId());
         LocationDto locationDto = new LocationDto();
         locationDto.setLat(event.getLocation().getLat());
         locationDto.setLon(event.getLocation().getLon());
@@ -68,13 +68,13 @@ public class EventMapper {
         eventShortDto.setId(event.getId());
         eventShortDto.setTitle(event.getTitle());
         eventShortDto.setAnnotation(event.getAnnotation());
-        eventShortDto.setCategoryId(event.getCategory().getId());
+        eventShortDto.setCategory(event.getCategoryId());
 
         // TODO Request
         eventShortDto.setConfirmedRequests(confirmedRequests);
         eventShortDto.setViews(views);
         eventShortDto.setEventDate(event.getEventDate());
-        eventShortDto.setInitiatorId(event.getInitiatorId());
+        eventShortDto.setInitiator(event.getInitiatorId());
         eventShortDto.setPaid(event.getPaid());
         return eventShortDto;
     }

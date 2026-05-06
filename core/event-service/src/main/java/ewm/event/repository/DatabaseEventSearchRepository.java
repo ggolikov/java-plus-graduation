@@ -36,7 +36,7 @@ public class DatabaseEventSearchRepository {
         }
 
         if (categories != null && !categories.isEmpty()) {
-            builder.and(event.category.id.in(categories));
+            builder.and(event.categoryId.in(categories));
         }
 
         if (rangeStart != null) {
@@ -76,7 +76,7 @@ public class DatabaseEventSearchRepository {
         }
 
         if (categories != null && !categories.isEmpty()) {
-            builder.and(event.category.id.in(categories));
+            builder.and(event.categoryId.in(categories));
         }
 
         if (paid != null) {
