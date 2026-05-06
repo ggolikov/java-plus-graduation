@@ -12,9 +12,12 @@
     <artifactId>core</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>common-contracts</module>
         <module>event-client</module>
         <module>event-service</module>
-        <module>user-service</module>
+        <module>request-client</module>
         <module>request-service</module>
+        <module>user-client</module>
+        <module>user-service</module>
     </modules>
 </project>
