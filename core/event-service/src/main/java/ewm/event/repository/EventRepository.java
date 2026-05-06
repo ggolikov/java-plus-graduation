@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface EventRepository {
     Event save(Event event);
@@ -31,4 +32,8 @@ public interface EventRepository {
     Optional<Event> findById(Long eventId);
 
     Optional<Event> findByIdAndState(Long eventId, EventState eventState);
+
+    List<Event> findAllByIdIn(Set<Long> eventIds);
+
+    boolean existsByCategoryId(Long categoryId);
 }

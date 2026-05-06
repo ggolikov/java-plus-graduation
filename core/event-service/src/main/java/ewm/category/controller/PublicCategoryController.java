@@ -1,6 +1,6 @@
 package ewm.category.controller;
 
-import ewm.category.dto.CategoryDto;
+import ewm.common.dto.category.CategoryDto;
 import ewm.category.service.CategoryService;
 import java.util.List;
 

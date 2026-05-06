@@ -1,6 +1,7 @@
 package ewm.event.service;
 
 import ewm.event.dto.*;
+import ewm.common.dto.event.*;
 import ewm.event.model.EventSort;
 import ewm.event.model.EventState;
 import jakarta.servlet.http.HttpServletRequest;

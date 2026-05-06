@@ -7,6 +7,8 @@ import ewm.compilation.dto.UpdateCompilationRequest;
 import ewm.compilation.mapper.CompilationMapper;
 import ewm.compilation.model.Compilation;
 import ewm.compilation.repository.CompilationRepository;
+import ewm.event.client.EventClient;
+import ewm.event.client.dto.EventInternalDto;
 import ewm.event.model.Event;
 import ewm.event.repository.DatabaseEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -103,6 +105,12 @@ public class CompilationServiceImpl implements CompilationService {
             throw new NotFoundException("Some events not found");
         }
 
-        return new HashSet<>(events);
+        return events.stream()
+                .map(dto -> {
+                    Event e = new Event();
+                    e.setId(dto.getId());
+                    return e;
+                })
+                .collect(java.util.stream.Collectors.toCollection(HashSet::new));
     }
 }

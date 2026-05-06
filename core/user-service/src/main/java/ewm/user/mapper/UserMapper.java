@@ -1,8 +1,8 @@
 package ewm.user.mapper;
 
 import ewm.user.dto.NewUserRequest;
-import ewm.user.dto.UserDto;
-import ewm.user.dto.UserShortDto;
+import ewm.common.dto.user.UserDto;
+import ewm.common.dto.user.UserShortDto;
 import ewm.user.model.User;
 
 public class UserMapper {

@@ -7,14 +7,16 @@ import ewm.common.exception.BadRequestException;
 import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
 import ewm.event.dto.*;
+import ewm.common.dto.event.*;
+import ewm.event.client.EventClient;
+import ewm.event.client.RequestClient;
+import ewm.event.client.dto.EventInternalDto;
 import ewm.event.mapper.EventMapper;
 import ewm.event.model.Event;
 import ewm.event.model.EventSort;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateActionAdmin;
 import ewm.event.repository.DatabaseEventSearchRepository;
-import ewm.event.repository.EventRepository;
-import ewm.request.repository.ParticipationRequestRepository;
 import ewm.user.client.UserClient;
 import ewm.user.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,11 +38,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private final UserClient userClient;
-    private final EventRepository eventRepository;
+    private final EventClient eventClient;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
-    private final ParticipationRequestRepository participationRequestRepository;
+    private final RequestClient requestClient;
 
     @Override
     @Transactional
@@ -50,13 +52,13 @@ public class EventServiceImpl implements EventService {
         UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        Category category = categoryRepository.findById(eventDto.getCategory())
+        Category category = categoryRepository.findById(eventDto.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
 
         Event event = EventMapper.mapToEvent(user, eventDto, category);
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
-        event = eventRepository.save(event);
+        event = fromInternalDto(eventClient.save(toInternalDto(event)));
 
         List<Event> eventList = List.of(event);
 
@@ -66,8 +68,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto get(Long userId, Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event event = fromInternalDto(eventClient.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found")));
         if (!event.getInitiatorId().equals(userId)) {
             throw new NotFoundException("Event not found");
         }
@@ -96,8 +98,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event event = fromInternalDto(eventClient.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found")));
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event is not published");
@@ -116,7 +118,9 @@ public class EventServiceImpl implements EventService {
 
         Pageable page = PageRequest.of(from / size, size);
 
-        List<Event> eventList = eventRepository.findByInitiatorId(userId, page);
+        List<Event> eventList = eventClient.findByInitiatorId(userId, page).stream()
+                .map(this::fromInternalDto)
+                .toList();
 
         return this.mapToEventShortDto(eventList);
     }
@@ -166,8 +170,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event currentEvent = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event currentEvent = fromInternalDto(eventClient.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found")));
 
         if (currentEvent.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Event is already published");
@@ -187,7 +191,7 @@ public class EventServiceImpl implements EventService {
         }
 
         isEventTimeValid(updatedEvent.getEventDate());
-        updatedEvent = eventRepository.save(updatedEvent);
+        updatedEvent = fromInternalDto(eventClient.save(toInternalDto(updatedEvent)));
 
 
         List<Event> eventList = List.of(updatedEvent);
@@ -198,8 +202,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto update(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
-        Event currentEvent = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found"));
+        Event currentEvent = fromInternalDto(eventClient.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found")));
 
         if (currentEvent.getState().equals(EventState.PUBLISHED) &&
                 updateEventAdminRequest.getEventDate() != null &&
@@ -229,7 +233,7 @@ public class EventServiceImpl implements EventService {
             updatedEvent.setCategory(category);
         }
 
-        updatedEvent = eventRepository.save(updatedEvent);
+        updatedEvent = fromInternalDto(eventClient.save(toInternalDto(updatedEvent)));
 
         List<Event> eventList = List.of(updatedEvent);
 
@@ -306,8 +310,8 @@ public class EventServiceImpl implements EventService {
                 .toList();
 
         Map<Long, Long> map = new HashMap<>();
-        for (ParticipationRequestRepository.EventConfirmedCount row
-                : participationRequestRepository.countConfirmedByEventIds(ids)) {
+        for (RequestClient.EventConfirmedCountDto row
+                : requestClient.countConfirmedByEventIds(ids)) {
             map.put(row.getEventId(), row.getCnt());
         }
         return map;
@@ -325,5 +329,57 @@ public class EventServiceImpl implements EventService {
                         confirmed.getOrDefault(e.getId(), 0L)
                 ))
                 .toList();
+    }
+
+    private EventInternalDto toInternalDto(Event event) {
+        EventInternalDto dto = new EventInternalDto();
+        dto.setId(event.getId());
+        dto.setInitiatorId(event.getInitiatorId());
+        dto.setCategoryId(event.getCategory() == null ? null : event.getCategory().getId());
+        dto.setAnnotation(event.getAnnotation());
+        dto.setDescription(event.getDescription());
+        dto.setTitle(event.getTitle());
+        dto.setLat(event.getLocation() == null ? null : event.getLocation().getLat());
+        dto.setLon(event.getLocation() == null ? null : event.getLocation().getLon());
+        dto.setPaid(event.getPaid());
+        dto.setParticipantLimit(event.getParticipantLimit());
+        dto.setRequestModeration(event.getRequestModeration());
+        dto.setConfirmedRequests(event.getConfirmedRequests());
+        dto.setEventDate(event.getEventDate());
+        dto.setCreatedOn(event.getCreatedOn());
+        dto.setPublishedOn(event.getPublishedOn());
+        dto.setState(event.getState() == null ? null : event.getState().name());
+        return dto;
+    }
+
+    private Event fromInternalDto(EventInternalDto dto) {
+        Event event = new Event();
+        event.setId(dto.getId());
+        event.setInitiatorId(dto.getInitiatorId());
+        event.setAnnotation(dto.getAnnotation());
+        event.setDescription(dto.getDescription());
+        event.setTitle(dto.getTitle());
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new NotFoundException("Category not found"));
+            event.setCategory(category);
+        }
+        if (dto.getLat() != null && dto.getLon() != null) {
+            ewm.common.model.Location location = new ewm.common.model.Location();
+            location.setLat(dto.getLat());
+            location.setLon(dto.getLon());
+            event.setLocation(location);
+        }
+        event.setPaid(dto.getPaid());
+        event.setParticipantLimit(dto.getParticipantLimit());
+        event.setRequestModeration(dto.getRequestModeration());
+        event.setConfirmedRequests(dto.getConfirmedRequests());
+        event.setEventDate(dto.getEventDate());
+        event.setCreatedOn(dto.getCreatedOn());
+        event.setPublishedOn(dto.getPublishedOn());
+        if (dto.getState() != null) {
+            event.setState(EventState.valueOf(dto.getState()));
+        }
+        return event;
     }
 }

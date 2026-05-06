@@ -4,12 +4,6 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user_service
-          uri: lb://user-service
-          predicates:
-            - Path=/users/**
-          filters:
-            - PrefixPath=/
         - id: user_service_admin
           uri: lb://user-service
           predicates:
@@ -31,7 +25,7 @@ spring:
         - id: event_service_events
           uri: lb://event-service
           predicates:
-            - Path=/events/**
+            - Path=/events/**, /users/{userId:\d+}/events/**, /internal/events/**
           filters:
             - PrefixPath=/
         - id: event_service_admin_events
@@ -62,6 +56,18 @@ spring:
           uri: lb://event-service
           predicates:
             - Path=/admin/comments/**
+          filters:
+            - PrefixPath=/
+        - id: request_service_users
+          uri: lb://request-service
+          predicates:
+            - Path=/users/{userId:\d+}/requests
+          filters:
+            - PrefixPath=/
+        - id: request_service_events
+          uri: lb://request-service
+          predicates:
+            - Path=/users/events/{eventId:\d+}/requests
           filters:
             - PrefixPath=/
       discovery:

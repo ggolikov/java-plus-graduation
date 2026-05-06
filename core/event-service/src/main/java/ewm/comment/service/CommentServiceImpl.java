@@ -1,17 +1,18 @@
 package ewm.comment.service;
 
-import ewm.comment.dto.CommentDto;
 import ewm.comment.dto.NewCommentDto;
 import ewm.comment.dto.UpdateCommentRequest;
 import ewm.comment.mapper.CommentMapper;
 import ewm.comment.model.Comment;
 import ewm.comment.model.CommentStatus;
 import ewm.comment.repository.CommentRepository;
+import ewm.common.dto.comment.CommentDto;
 import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
+import ewm.event.client.EventClient;
+import ewm.event.client.dto.EventInternalDto;
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
-import ewm.event.repository.EventRepository;
 import ewm.user.client.UserClient;
 import ewm.user.dto.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserClient userClient;
-    private final EventRepository eventRepository;
+    private final EventClient eventClient;
 
     @Override
     @Transactional
@@ -36,16 +37,18 @@ public class CommentServiceImpl implements CommentService {
         UserDto user = userClient.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
-        Event event = eventRepository.findById(eventId)
+        EventInternalDto event = eventClient.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
 
-        if (event.getState() != EventState.PUBLISHED) {
+        if (!EventState.PUBLISHED.name().equals(event.getState())) {
             throw new ConflictException("Comments can only be added to published events");
         }
 
         Comment comment = CommentMapper.mapToComment(newCommentDto);
         comment.setAuthorId(user.getId());
-        comment.setEvent(event);
+        Event eventRef = new Event();
+        eventRef.setId(event.getId());
+        comment.setEvent(eventRef);
         comment.setStatus(CommentStatus.NEW);
 
         Comment saved = commentRepository.save(comment);
@@ -72,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public List<CommentDto> getEventComments(Long eventId, int from, int size) {
-        eventRepository.findById(eventId)
+        eventClient.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found: " + eventId));
 
         Pageable page = PageRequest.of(from / size, size);

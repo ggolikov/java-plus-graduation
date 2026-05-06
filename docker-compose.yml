@@ -27,6 +27,20 @@ services:
       interval: 5s
       retries: 5
 
+  request-db:
+    image: postgres:16.1
+    container_name: request-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: request
+      POSTGRES_USER: request
+      POSTGRES_PASSWORD: request
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U request" ]
+      interval: 5s
+      retries: 5
+
   stats-db:
     image: postgres:16.1
     container_name: postgres-ewm-stats-db

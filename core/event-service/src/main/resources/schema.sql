@@ -23,15 +23,6 @@ CREATE TABLE IF NOT EXISTS events (
     CONSTRAINT pk_event PRIMARY KEY (id)
     );
 
-CREATE TABLE IF NOT EXISTS participation_requests (
-                                        id BIGSERIAL PRIMARY KEY,
-                                        event_id BIGINT NOT NULL REFERENCES events,
-                                        requester_id BIGINT NOT NULL,
-                                        status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-                                        created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                        CONSTRAINT uq_event_requester UNIQUE (event_id, requester_id)
-);
-
 CREATE TABLE IF NOT EXISTS compilations (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,

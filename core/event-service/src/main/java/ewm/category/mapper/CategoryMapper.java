@@ -1,8 +1,8 @@
 package ewm.category.mapper;
 
-import ewm.category.dto.CategoryDto;
 import ewm.category.dto.NewCategoryDto;
 import ewm.category.model.Category;
+import ewm.common.dto.category.CategoryDto;
 
 public final class CategoryMapper {
     private CategoryMapper() {

@@ -1,9 +1,9 @@
 package ewm.comment.mapper;
 
-import ewm.comment.dto.CommentDto;
 import ewm.comment.dto.NewCommentDto;
 import ewm.comment.dto.UpdateCommentRequest;
 import ewm.comment.model.Comment;
+import ewm.common.dto.comment.CommentDto;
 
 public final class CommentMapper {
 

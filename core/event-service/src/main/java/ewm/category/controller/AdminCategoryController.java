@@ -1,8 +1,8 @@
 package ewm.category.controller;
 
-import ewm.category.dto.CategoryDto;
 import ewm.category.dto.NewCategoryDto;
 import ewm.category.service.CategoryService;
+import ewm.common.dto.category.CategoryDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

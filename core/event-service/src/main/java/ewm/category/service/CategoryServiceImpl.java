@@ -1,16 +1,16 @@
 package ewm.category.service;
 
-import ewm.category.dto.CategoryDto;
 import ewm.category.dto.NewCategoryDto;
 import ewm.category.mapper.CategoryMapper;
 import ewm.category.model.Category;
 import ewm.category.repository.CategoryRepository;
+import ewm.common.dto.category.CategoryDto;
 import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
+import ewm.event.client.EventClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ewm.event.repository.DatabaseEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
-    private final DatabaseEventRepository eventRepository;
+    private final EventClient eventClient;
 
     @Override
     @Transactional
@@ -53,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория с id=" + id + " не была найдена"));
 
-        if (eventRepository.existsByCategoryId(id)) {
+        if (eventClient.existsByCategoryId(id)) {
             throw new ConflictException("Category is not empty");
         }
 

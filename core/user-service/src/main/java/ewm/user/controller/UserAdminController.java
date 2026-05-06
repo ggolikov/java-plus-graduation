@@ -1,7 +1,7 @@
 package ewm.user.controller;
 
 import ewm.user.dto.NewUserRequest;
-import ewm.user.dto.UserDto;
+import ewm.common.dto.user.UserDto;
 import ewm.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;

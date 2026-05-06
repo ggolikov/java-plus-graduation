@@ -38,7 +38,11 @@
 		<module>stats</module>
         <module>infra</module>
 		<module>core</module>
-	</modules>
+        <module>core/common-contracts</module>
+        <module>core/user-client</module>
+		<module>core/event-client</module>
+        <module>core/request-client</module>
+    </modules>
 
 	<dependencies>
 		<dependency>

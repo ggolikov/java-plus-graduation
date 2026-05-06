@@ -1,7 +1,6 @@
 package ewm.comment.controller;
-
-import ewm.comment.dto.CommentDto;
 import ewm.comment.service.CommentService;
+import ewm.common.dto.comment.CommentDto;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +20,8 @@ public class CommentPublicController {
     @GetMapping("/events/{eventId}/comments")
     @ResponseStatus(HttpStatus.OK)
     public List<CommentDto> getEventComments(@PathVariable Long eventId,
-                                              @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                              @RequestParam(defaultValue = "10") @Positive Integer size) {
+                                             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                             @RequestParam(defaultValue = "10") @Positive Integer size) {
         return commentService.getEventComments(eventId, from, size);
     }
 

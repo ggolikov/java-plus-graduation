@@ -1,6 +1,6 @@
 package ewm.event.controller;
 
-import ewm.event.dto.EventFullDto;
+import ewm.common.dto.event.EventFullDto;
 import ewm.event.dto.UpdateEventAdminRequest;
 import ewm.event.model.EventState;
 import ewm.event.service.EventService;

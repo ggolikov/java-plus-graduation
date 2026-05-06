@@ -3,8 +3,12 @@ package ewm.event.mapper;
 import ewm.category.mapper.CategoryMapper;
 import ewm.category.model.Category;
 import ewm.common.dto.LocationDto;
+import ewm.common.dto.event.EventFullDto;
+import ewm.common.dto.event.EventShortDto;
 import ewm.common.model.Location;
-import ewm.event.dto.*;
+import ewm.event.dto.NewEventDto;
+import ewm.event.dto.UpdateEventAdminRequest;
+import ewm.event.dto.UpdateEventUserRequest;
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateAction;
@@ -38,7 +42,7 @@ public class EventMapper {
         eventFullDto.setTitle(event.getTitle());
         eventFullDto.setAnnotation(event.getAnnotation());
         eventFullDto.setDescription(event.getDescription());
-        eventFullDto.setCategory(CategoryMapper.toDto(event.getCategory()));
+        eventFullDto.setCategoryId(event.getCategory().getId());
         eventFullDto.setCreatedOn(event.getCreatedOn());
         eventFullDto.setEventDate(event.getEventDate());
         eventFullDto.setPublishedOn(event.getPublishedOn());
@@ -64,7 +68,7 @@ public class EventMapper {
         eventShortDto.setId(event.getId());
         eventShortDto.setTitle(event.getTitle());
         eventShortDto.setAnnotation(event.getAnnotation());
-        eventShortDto.setCategory(CategoryMapper.toDto(event.getCategory()));
+        eventShortDto.setCategoryId(event.getCategory().getId());
 
         // TODO Request
         eventShortDto.setConfirmedRequests(confirmedRequests);

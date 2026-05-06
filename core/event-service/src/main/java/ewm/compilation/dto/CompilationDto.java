@@ -1,6 +1,6 @@
 package ewm.compilation.dto;
 
-import ewm.event.dto.EventShortDto;
+import ewm.common.dto.event.EventShortDto;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

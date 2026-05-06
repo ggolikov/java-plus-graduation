@@ -1,9 +1,9 @@
 package ewm.comment.controller;
 
-import ewm.comment.dto.CommentDto;
 import ewm.comment.dto.NewCommentDto;
 import ewm.comment.dto.UpdateCommentRequest;
 import ewm.comment.service.CommentService;
+import ewm.common.dto.comment.CommentDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;

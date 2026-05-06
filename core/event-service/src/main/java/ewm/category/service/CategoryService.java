@@ -1,7 +1,8 @@
 package ewm.category.service;
 
-import ewm.category.dto.CategoryDto;
 import ewm.category.dto.NewCategoryDto;
+import ewm.common.dto.category.CategoryDto;
+
 import java.util.List;
 
 public interface CategoryService {

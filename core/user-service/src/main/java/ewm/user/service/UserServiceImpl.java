@@ -1,7 +1,7 @@
 package ewm.user.service;
 
+import ewm.common.dto.user.UserDto;
 import ewm.user.dto.NewUserRequest;
-import ewm.user.dto.UserDto;
 import ewm.user.mapper.UserMapper;
 import ewm.user.model.User;
 import ewm.user.repository.UserRepository;

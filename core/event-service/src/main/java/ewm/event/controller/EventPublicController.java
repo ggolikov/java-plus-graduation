@@ -1,7 +1,7 @@
 package ewm.event.controller;
 
-import ewm.event.dto.EventFullDto;
-import ewm.event.dto.EventShortDto;
+import ewm.common.dto.event.EventFullDto;
+import ewm.common.dto.event.EventShortDto;
 import ewm.event.model.EventSort;
 import ewm.event.service.EventService;
 import jakarta.servlet.http.HttpServletRequest;
