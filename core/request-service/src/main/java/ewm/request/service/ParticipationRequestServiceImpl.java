@@ -148,6 +148,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 throw new ConflictException("Only PENDING requests can be updated");
             }
         }
+        List<ParticipationRequestDto> eventRequests =  getEventRequests(userId, eventId);
 
         List<ParticipationRequest> confirmedOut = new ArrayList<>();
         List<ParticipationRequest> rejectedOut = new ArrayList<>();
@@ -162,7 +163,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         // status == CONFIRMED
         long limit = event.getParticipantLimit();
-        long confirmed = event.getConfirmedRequests();
+        long confirmed = eventRequests.stream().filter(r -> Objects.equals(r.getStatus(), "CONFIRMED")).count();
 
         if (limit > 0 && confirmed >= limit) {
             throw new ConflictException("Participant limit reached");

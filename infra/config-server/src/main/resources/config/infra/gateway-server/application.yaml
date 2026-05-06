@@ -25,7 +25,7 @@ spring:
         - id: event_service_events
           uri: lb://event-service
           predicates:
-            - Path=/events/**, /users/{userId:\d+}/events, /internal/events/**
+            - Path=/events/**, /users/{userId:\d+}/events, /users/{userId:\d+}/events/{eventId:\d+}, /internal/events/**
           filters:
             - PrefixPath=/
         - id: event_service_admin_events
@@ -61,7 +61,7 @@ spring:
         - id: request_service_users
           uri: lb://request-service
           predicates:
-            - Path=/users/{userId:\d+}/requests
+            - Path=/users/{userId:\d+}/requests, /users/{userId:\d+}/requests/**
           filters:
             - PrefixPath=/
         - id: request_service_events

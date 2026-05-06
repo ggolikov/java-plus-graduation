@@ -8,7 +8,6 @@ import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
 import ewm.event.dto.*;
 import ewm.common.dto.event.*;
-import ewm.event.client.EventClient;
 import ewm.event.client.RequestClient;
 import ewm.event.client.dto.EventInternalDto;
 import ewm.event.mapper.EventMapper;
@@ -17,6 +16,7 @@ import ewm.event.model.EventSort;
 import ewm.event.model.EventState;
 import ewm.event.model.EventStateActionAdmin;
 import ewm.event.repository.DatabaseEventSearchRepository;
+import ewm.event.repository.EventRepository;
 import ewm.user.client.UserClient;
 import ewm.common.dto.user.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +38,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
     private final UserClient userClient;
-    private final EventClient eventClient;
+    private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository  databaseEventSearchRepository;
     private final CategoryRepository categoryRepository;
     private final StatsClient statsClient;
@@ -55,7 +55,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.mapToEvent(user, eventDto, eventDto.getCategory());
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
-        event = fromInternalDto(eventClient.save(toInternalDto(event)));
+        event = eventRepository.save(event);
 
         List<Event> eventList = List.of(event);
 
@@ -65,8 +65,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto get(Long userId, Long eventId) {
-        Event event = fromInternalDto(eventClient.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found")));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
         if (!event.getInitiatorId().equals(userId)) {
             throw new NotFoundException("Event not found");
         }
@@ -95,8 +95,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
-        Event event = fromInternalDto(eventClient.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found")));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event is not published");
@@ -115,9 +115,7 @@ public class EventServiceImpl implements EventService {
 
         Pageable page = PageRequest.of(from / size, size);
 
-        List<Event> eventList = eventClient.findByInitiatorId(userId, page).stream()
-                .map(this::fromInternalDto)
-                .toList();
+        List<Event> eventList = eventRepository.findByInitiatorId(userId, page);
 
         return this.mapToEventShortDto(eventList);
     }
@@ -167,8 +165,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event currentEvent = fromInternalDto(eventClient.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found")));
+        Event currentEvent = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
 
         if (currentEvent.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Event is already published");
@@ -186,8 +184,7 @@ public class EventServiceImpl implements EventService {
         }
 
         isEventTimeValid(updatedEvent.getEventDate());
-        updatedEvent = fromInternalDto(eventClient.save(toInternalDto(updatedEvent)));
-
+        updatedEvent = eventRepository.save(updatedEvent);
 
         List<Event> eventList = List.of(updatedEvent);
 
@@ -197,8 +194,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto update(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
-        Event currentEvent = fromInternalDto(eventClient.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event not found")));
+        Event currentEvent = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
 
         if (currentEvent.getState().equals(EventState.PUBLISHED) &&
                 updateEventAdminRequest.getEventDate() != null &&
@@ -226,7 +223,7 @@ public class EventServiceImpl implements EventService {
             updatedEvent.setCategoryId(updateEventAdminRequest.getCategory());
         }
 
-        updatedEvent = fromInternalDto(eventClient.save(toInternalDto(updatedEvent)));
+        updatedEvent = eventRepository.save(updatedEvent);
 
         List<Event> eventList = List.of(updatedEvent);
 
