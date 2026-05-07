@@ -1,6 +1,9 @@
 services:
-  postgres:
+  x-postgres-common: &postgres-common
     image: postgres:16.1
+
+  postgres:
+    <<: *postgres-common
     container_name: postgres
     ports:
       - "5432:5432"
@@ -14,7 +17,7 @@ services:
       retries: 5
 
   user-db:
-    image: postgres:16.1
+    <<: *postgres-common
     container_name: user-db
     ports:
       - "5434:5432"
@@ -28,7 +31,7 @@ services:
       retries: 5
 
   request-db:
-    image: postgres:16.1
+    <<: *postgres-common
     container_name: request-db
     ports:
       - "5435:5432"
@@ -42,7 +45,7 @@ services:
       retries: 5
 
   comment-db:
-    image: postgres:16.1
+    <<: *postgres-common
     container_name: comment-db
     ports:
       - "5436:5432"
@@ -56,7 +59,7 @@ services:
       retries: 5
 
   stats-db:
-    image: postgres:16.1
+    <<: *postgres-common
     container_name: postgres-ewm-stats-db
     ports:
       - "5433:5432"
