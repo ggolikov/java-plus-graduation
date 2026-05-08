@@ -1,14 +1,14 @@
 spring:
   application:
-    name: stats-server
+    name: event-service
   cloud:
     openfeign:
-      enabled: false
+      enabled: true
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/stats}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB:postgres}
     driver-class-name: org.postgresql.Driver
-    username: stats
-    password: stats
+    username: postgres
+    password: postgres
     init: DEBUG
   sql:
     init:
@@ -19,12 +19,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         ddl-auto: none
         format_sql: false
-    defer-datasource-initialization: false
+    defer-datasource-initialization: true
     open-in-view: false
     show-sql: true
 
 server:
-  port: 9090
+  port: 0
 
 management:
   endpoints:
