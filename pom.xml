@@ -38,7 +38,8 @@
 		<module>stats</module>
         <module>infra</module>
 		<module>core</module>
-	</modules>
+        <module>stats/serialization</module>
+    </modules>
 
 	<dependencies>
 		<dependency>
