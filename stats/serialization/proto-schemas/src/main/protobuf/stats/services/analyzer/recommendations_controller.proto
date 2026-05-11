@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package stats.service.dashboard;
 
-import "google/protobuf/empty.proto";
 import "stats/messages/user_predictions_request.proto";
 import "stats/messages/recommended_event.proto";
 import "stats/messages/similar_events_request.proto";

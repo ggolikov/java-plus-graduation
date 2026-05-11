@@ -12,22 +12,17 @@
 
     <artifactId>proto-schemas</artifactId>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
         </dependency>
 
         <!-- Until gRPC generator library moves to generated jakarta instead of javax -->
@@ -50,9 +45,10 @@
             <plugin>
                 <groupId>io.github.ascopes</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
+                <version>2.3.0</version>
 
                 <configuration>
-                    <protocVersion>${protobuf.version}</protocVersion>
+                    <protocVersion>3.23.4</protocVersion>
 
                     <binaryMavenPlugins>
                         <binaryMavenPlugin>
