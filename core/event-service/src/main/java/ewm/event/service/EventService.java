@@ -22,7 +22,7 @@ public interface EventService {
                            int from,
                            int size);
 
-    EventFullDto getPublicEvent(Long eventId, HttpServletRequest request);
+    EventFullDto getPublicEvent(Long userId, Long eventId, HttpServletRequest request);
 
     List<EventShortDto> getEvents(Long userId, int from, int size);
 

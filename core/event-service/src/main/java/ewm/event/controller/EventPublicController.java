@@ -22,8 +22,8 @@ public class EventPublicController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto getPublicEvent(@PathVariable("id") Long eventId, HttpServletRequest request) {
-        return eventService.getPublicEvent(eventId, request);
+    public EventFullDto getPublicEvent(@RequestHeader("X-EWM-USER-ID") Long userId, @PathVariable("id") Long eventId, HttpServletRequest request) {
+        return eventService.getPublicEvent(userId, eventId, request);
     }
 
     @GetMapping

@@ -14,7 +14,8 @@ public class UserActionsController extends UserActionControllerGrpc.UserActionCo
         this.userActionEventService = userActionEventService;
     }
 
-    public void collectUserActionEvent(UserActionProto event, StreamObserver<Empty> responseObserver) {
+    @Override
+    public void collectUserAction(UserActionProto event, StreamObserver<Empty> responseObserver) {
         userActionEventService.collectUserActionEvent(event, responseObserver);
     }
 }

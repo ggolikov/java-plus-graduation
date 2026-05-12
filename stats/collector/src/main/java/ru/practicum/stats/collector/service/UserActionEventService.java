@@ -15,7 +15,7 @@ import java.time.Instant;
 
 @Service
 public class UserActionEventService {
-    @Value("${kafka.topic.hubs:stats.user-actions.v1}")
+    @Value("${kafka.topic.actions:stats.user-actions.v1}")
     private String userActionsTopic;
 
     private final KafkaClient kafkaClient;
@@ -51,8 +51,17 @@ public class UserActionEventService {
         return UserActionAvro.newBuilder()
             .setUserId(event.getUserId())
                 .setEventId(event.getEventId())
-                .setActionType(ActionTypeAvro.valueOf(event.getActionType().name()))
+                .setActionType(toAvroActionType(event.getActionType()))
                 .setTimestamp(timestamp)
             .build();
+    }
+
+    private static ActionTypeAvro toAvroActionType(ActionTypeProto proto) {
+        return switch (proto) {
+            case ACTION_VIEW -> ActionTypeAvro.VIEW;
+            case ACTION_REGISTER -> ActionTypeAvro.REGISTER;
+            case ACTION_LIKE -> ActionTypeAvro.LIKE;
+            default -> throw new IllegalArgumentException("Unsupported action type: " + proto);
+        };
     }
 }

@@ -1,15 +1,11 @@
 package ewm.event.service;
 
-import client.StatsClient;
-import ewm.category.model.Category;
-import ewm.category.repository.CategoryRepository;
 import ewm.common.exception.BadRequestException;
 import ewm.common.exception.ConflictException;
 import ewm.common.exception.NotFoundException;
 import ewm.event.dto.*;
 import ewm.common.dto.event.*;
 import ewm.event.client.RequestClient;
-import ewm.event.client.dto.EventInternalDto;
 import ewm.event.mapper.EventMapper;
 import ewm.event.model.Event;
 import ewm.event.model.EventSort;
@@ -27,8 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.stats.dto.EndpointHitDto;
-import ru.practicum.ewm.stats.dto.ViewStatsDto;
+import ru.practicum.ewm.client.stats.CollectorClient;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -39,9 +36,9 @@ import java.util.*;
 public class EventServiceImpl implements EventService {
     private final UserClient userClient;
     private final EventRepository eventRepository;
-    private final DatabaseEventSearchRepository  databaseEventSearchRepository;
-    private final CategoryRepository categoryRepository;
-    private final StatsClient statsClient;
+    private final DatabaseEventSearchRepository databaseEventSearchRepository;
+    private final CollectorClient collectorClient;
+
     private final RequestClient requestClient;
 
     @Override
@@ -94,7 +91,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
+    public EventFullDto getPublicEvent(Long userId, Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
 
@@ -103,7 +100,13 @@ public class EventServiceImpl implements EventService {
         }
 
         List<Event> eventList = List.of(event, event);
-        registerHit(request);
+
+        UserActionProto userActionProto = UserActionProto.newBuilder()
+                        .setUserId(userId)
+                                .setEventId(eventId)
+                                        .setActionType(ActionTypeProto.ACTION_VIEW)
+                                                /*.setTimestamp()*/.build();
+        collectorClient.collectUserAction(userActionProto);
         return this.mapToEventFullDto(eventList).getFirst();
     }
 
@@ -146,8 +149,6 @@ public class EventServiceImpl implements EventService {
             page = PageRequest.of(from / size, size);
         }
 
-         registerHit(request);
-
         List<Event> eventList = databaseEventSearchRepository.findPublicEvents(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, page
         );
@@ -155,7 +156,7 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> dtos = mapToEventShortDto(eventList);
 
         if (sort == EventSort.VIEWS) {
-            dtos.sort(Comparator.comparingLong(EventShortDto::getViews).reversed());
+            dtos.sort(Comparator.comparingDouble(EventShortDto::getRating).reversed());
         }
 
         return dtos;
@@ -236,16 +237,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void registerHit(HttpServletRequest request) {
-        EndpointHitDto endpointHitDto = new EndpointHitDto();
-        endpointHitDto.setApp("main-service");
-        endpointHitDto.setUri(request.getRequestURI());
-        endpointHitDto.setIp(request.getRemoteAddr());
-        endpointHitDto.setTimestamp(LocalDateTime.now());
-        statsClient.hit(endpointHitDto);
-    }
-
-    private Map<Long, Integer> getEventsViews(List<Event> eventList) {
+    private Map<Long, Double> getEventsViews(List<Event> eventList) {
         if (eventList == null || eventList.isEmpty()) return Map.of();
 
         List<String> uris = eventList.stream()
@@ -260,32 +252,17 @@ public class EventServiceImpl implements EventService {
 
         LocalDateTime end = LocalDateTime.now();
 
-        try {
-            List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, true);
-
-            Map<Long, Integer> map = new HashMap<>();
-            for (ViewStatsDto s : stats) {
-                String[] parts = s.getUri().split("/");
-                if (parts.length >= 3) {
-                    long eventId = Long.parseLong(parts[2]);
-                    map.put(eventId, (int) s.getHits());
-                }
-            }
-            return map;
-        } catch (Exception ex) {
-            // критично: не роняем эндпоинт
-            return Map.of();
-        }
+        return Map.of();
     }
 
     private List<EventFullDto> mapToEventFullDto(List<Event> eventList) {
-        Map<Long, Integer> views = getEventsViews(eventList);
+        Map<Long, Double> ratings = getEventsViews(eventList);
         Map<Long, Long> confirmed = getConfirmedRequests(eventList);
 
         return eventList.stream()
                 .map(e -> EventMapper.mapToEventFullDto(
                         e,
-                        views.getOrDefault(e.getId(), 0),
+                        ratings.getOrDefault(e.getId().doubleValue(), 0D),
                         confirmed.getOrDefault(e.getId(), 0L)
                 ))
                 .toList();
@@ -309,13 +286,13 @@ public class EventServiceImpl implements EventService {
 
 
     private List<EventShortDto> mapToEventShortDto(List<Event> eventList) {
-        Map<Long, Integer> views = getEventsViews(eventList);
+        Map<Long, Double> views = getEventsViews(eventList);
         Map<Long, Long> confirmed = getConfirmedRequests(eventList);
 
         return eventList.stream()
                 .map(e -> EventMapper.mapToEventShortDto(
                         e,
-                        views.getOrDefault(e.getId(), 0),
+                        views.getOrDefault(e.getId(), 0D),
                         confirmed.getOrDefault(e.getId(), 0L)
                 ))
                 .toList();
