@@ -24,9 +24,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.stats.CollectorClient;
+import ru.practicum.ewm.client.stats.RecommendationsClient;
 import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.ewm.stats.proto.UserActionProto;
+import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,6 +42,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final DatabaseEventSearchRepository databaseEventSearchRepository;
     private final CollectorClient collectorClient;
+    private final RecommendationsClient recommendationsClient;
 
     private final RequestClient requestClient;
 
@@ -231,10 +236,26 @@ public class EventServiceImpl implements EventService {
         return this.mapToEventFullDto(eventList).getFirst();
     }
 
+    public Iterator<RecommendedEventProto> getRecommendations(Long userId, Long maxResults) {
+        UserPredictionsRequestProto userPredictionsRequest = UserPredictionsRequestProto.newBuilder()
+                .setUserId(userId)
+                .setMaxResults(maxResults).build();
+        return recommendationsClient.getRecommendationsForUser(userPredictionsRequest);
+    }
+
     private void isEventTimeValid(LocalDateTime eventTime) {
         if (eventTime.isBefore(LocalDateTime.now().plusHours(2))) {
             throw new BadRequestException("Invalid event time");
         }
+    }
+
+    public void likeEvent(Long userId, Long eventId) {
+        UserActionProto userAction = UserActionProto.newBuilder()
+                        .setUserId(userId)
+                                .setEventId(eventId)
+                                        .setActionType(ActionTypeProto.ACTION_LIKE)
+                                                .build();
+        collectorClient.collectUserAction(userAction);
     }
 
     private Map<Long, Double> getEventsViews(List<Event> eventList) {

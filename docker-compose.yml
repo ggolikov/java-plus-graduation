@@ -1,6 +1,7 @@
+x-postgres-common: &postgres-common
+  image: postgres:16.1
+
 services:
-  x-postgres-common: &postgres-common
-    image: postgres:16.1
 
   postgres:
     <<: *postgres-common
@@ -55,6 +56,20 @@ services:
       POSTGRES_PASSWORD: comment
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U comment" ]
+      interval: 5s
+      retries: 5
+
+  analyzer-db:
+    <<: *postgres-common
+    container_name: analyzer-db
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_DB: analyzer
+      POSTGRES_USER: analyzer
+      POSTGRES_PASSWORD: analyzer
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U analyzer" ]
       interval: 5s
       retries: 5
 

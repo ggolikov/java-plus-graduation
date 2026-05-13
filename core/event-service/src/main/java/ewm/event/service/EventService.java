@@ -5,8 +5,10 @@ import ewm.common.dto.event.*;
 import ewm.event.model.EventSort;
 import ewm.event.model.EventState;
 import jakarta.servlet.http.HttpServletRequest;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 
 public interface EventService {
@@ -40,4 +42,8 @@ public interface EventService {
     EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
     EventFullDto update(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
+
+    Iterator<RecommendedEventProto> getRecommendations(Long userId, Long maxSize);
+
+    void likeEvent(Long userId, Long eventId);
 }

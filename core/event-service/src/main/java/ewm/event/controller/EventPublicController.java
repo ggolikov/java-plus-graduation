@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -42,5 +44,9 @@ public class EventPublicController {
                                                HttpServletRequest request) {
         return eventService.getPublicEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from,
                 size, request);
+    }
+
+    public Iterator<RecommendedEventProto> getRecommendations(@RequestHeader("X-EWM-USER-ID") Long userId, @RequestParam(required = false) Long maxSize) {
+        return eventService.getRecommendations(userId, maxSize);
     }
 }

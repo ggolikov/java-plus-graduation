@@ -12,9 +12,9 @@ import ru.practicum.ewm.stats.proto.UserActionProto;
 public class CollectorClient {
 
     @GrpcClient("collector")
-    private UserActionControllerGrpc.UserActionControllerBlockingStub blockingStub;
+    private UserActionControllerGrpc.UserActionControllerBlockingStub client;
 
     public void collectUserAction(UserActionProto event) {
-        blockingStub.collectUserAction(event);
+        client.collectUserAction(event);
     }
 }

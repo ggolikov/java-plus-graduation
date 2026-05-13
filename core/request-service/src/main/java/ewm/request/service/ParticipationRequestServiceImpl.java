@@ -15,6 +15,9 @@ import ewm.user.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.stats.CollectorClient;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,7 +32,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     private final ParticipationRequestRepository requestRepo;
     private final UserClient userClient;
     private final EventClient eventClient;
-
+    private final CollectorClient collectorClient;
     @Override
     @Transactional
     public ParticipationRequestDto create(Long userId, Long eventId) {
@@ -80,6 +83,13 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 throw new ConflictException("Participant limit reached");
             }
         }
+
+        UserActionProto userAction = UserActionProto.newBuilder()
+                .setUserId(userId)
+                .setEventId(eventId)
+                .setActionType(ActionTypeProto.ACTION_REGISTER)
+                .build();
+        collectorClient.collectUserAction(userAction);
 
         ParticipationRequest saved = requestRepo.save(req);
         return ParticipationRequestMapper.toDto(saved);
