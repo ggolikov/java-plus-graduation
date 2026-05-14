@@ -9,7 +9,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
-import ru.practicum.ewm.stats.avro.EventAvro;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.stats.aggregator.client.KafkaClient;
@@ -17,9 +16,7 @@ import ru.practicum.stats.aggregator.client.KafkaClientImplementation;
 import ru.practicum.stats.aggregator.client.KafkaConsumerProperties;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Класс AggregationStarter, ответственный за запуск агрегации данных.
@@ -57,13 +54,16 @@ public class    AggregationStarter {
 
                     for (EventSimilarityAvro eventSimilarityAvro : similarities) {
                         String similaritiesTopic = kafkaConsumerProperties.getOutgoingTopic();
+                        Long nameA = eventSimilarityAvro.getEventA();
+                        Long nameB = eventSimilarityAvro.getEventB();
+                        String key = nameA + "-" + nameB;
 
                         ProducerRecord<String, EventSimilarityAvro> similarityRecord = new ProducerRecord<>(
                                 similaritiesTopic,
                                 null,
                                 eventSimilarityAvro.getTimestamp().toEpochMilli(),
                                 // TODO: заменить на id
-                                eventSimilarityAvro.getTimestamp().toString(),
+                                key,
                                 eventSimilarityAvro
                         );
                         producer.send(similarityRecord);
@@ -75,7 +75,7 @@ public class    AggregationStarter {
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
         } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от датчиков", e);
+            log.error("Ошибка во время обработки событий", e);
         } finally {
             try {
                 // Перед тем, как закрыть продюсер и консьюмер, нужно убедиться,
