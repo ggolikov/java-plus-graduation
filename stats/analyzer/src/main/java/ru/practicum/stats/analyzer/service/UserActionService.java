@@ -2,6 +2,7 @@ package ru.practicum.stats.analyzer.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.ewm.stats.proto.*;
 import ru.practicum.stats.analyzer.mapper.InteractionMapper;
@@ -22,9 +23,12 @@ public class UserActionService {
         this.interactionRepository = interactionRepository;
         this.eventSimilarityService = eventSimilarityService;
     }
+    @Transactional
     public void processEvent(UserActionAvro event) {
         Interaction interaction = InteractionMapper.mapToInteraction(event);
-        interactionRepository.save(interaction);
+        if (!interactionRepository.existsByUserIdAndEventId(event.getUserId(), event.getEventId())) {
+            interactionRepository.save(interaction);
+        }
     }
     public Long getInteractionsCount(InteractionsCountRequestProto request) {
         return interactionRepository.countRatingByEventId(request.getEventId());

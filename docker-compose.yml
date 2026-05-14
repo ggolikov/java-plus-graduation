@@ -1,8 +1,6 @@
 x-postgres-common: &postgres-common
   image: postgres:16.1
-
 services:
-
   postgres:
     <<: *postgres-common
     container_name: postgres

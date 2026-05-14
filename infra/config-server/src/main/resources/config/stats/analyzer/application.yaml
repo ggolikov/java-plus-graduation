@@ -17,7 +17,7 @@ spring:
         ddl-auto: none
     defer-datasource-initialization: true
     open-in-view: false
-    show-sql: false
+    show-sql: true
 grpc:
   server:
     port: 0

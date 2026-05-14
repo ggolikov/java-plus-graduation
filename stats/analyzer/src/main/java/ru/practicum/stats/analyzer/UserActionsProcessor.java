@@ -46,7 +46,7 @@ public class UserActionsProcessor {
                     int count = 0;
                     for (ConsumerRecord<Long, UserActionAvro> record : records) {
                         UserActionAvro userActionAvro = record.value();
-                        log.info("Snapshot event received: {}", record.value());
+                        log.info("User event received: {}", record.value());
 
                         userActionService.processEvent(userActionAvro);
                         manageOffsets(record, count++);
@@ -57,7 +57,7 @@ public class UserActionsProcessor {
 
         } catch (WakeupException ignored) {
         } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от датчиков", e);
+            log.error("Ошибка во время обработки событий", e);
         } finally {
             try {
                 kafkaClient.getUserActionsConsumer().commitSync();

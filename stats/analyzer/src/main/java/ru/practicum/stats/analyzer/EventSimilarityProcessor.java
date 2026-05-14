@@ -51,7 +51,7 @@ public class EventSimilarityProcessor implements Runnable {
                         if (event == null) {
                             continue;
                         }
-                        log.info("Hub event received: {}", event);
+                        log.info("Similarity event received: {}", event);
                         eventSimilarityService.processEvent(event);
                         manageOffsets(record, count++);
                     }
@@ -62,7 +62,7 @@ public class EventSimilarityProcessor implements Runnable {
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
         } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от датчиков", e);
+            log.error("Ошибка во время обработки событий", e);
         } finally {
             try {
                 if (consumer != null) {

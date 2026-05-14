@@ -19,7 +19,7 @@ public class EventSimilarityService {
     public EventSimilarityService(SimilarityRepository similarityRepository) {
         this.similarityRepository = similarityRepository;
     }
-    @Transactional(readOnly = true)
+    @Transactional
     public void processEvent(EventSimilarityAvro event) {
         Similarity similarity = SimilarityMapper.mapToSimilarity(event);
         similarityRepository.save(similarity);
