@@ -33,6 +33,8 @@ management:
         include: "*"
 
 grpc:
+  server:
+    port: 0
   client:
     collector: # <- должно соответствовать значению в @GrpcClient
       address: 'discovery:///collector' # адрес gRPC-сервиса
