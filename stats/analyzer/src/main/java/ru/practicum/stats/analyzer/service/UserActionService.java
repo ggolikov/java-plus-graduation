@@ -70,6 +70,7 @@ public class UserActionService {
     }
 
     public List<RecommendedEventProto> getUserPredictions(UserPredictionsRequestProto request) {
+        Long userId = request.getUserId();
         List<Interaction> userActions = getUserActions(request);
         List<Long> userActionsIds = userActions.stream().map(Interaction::getEventId).collect(Collectors.toList());
 
@@ -83,7 +84,7 @@ public class UserActionService {
             Double similaritiesSum = 0.0;
 
             for (Similarity similarity : similarEvents) {
-                Long rating = interactionRepository.getRating(request.getUserId(), similarity.getEvent1());
+                Long rating = interactionRepository.getEventRating(userId, similarity.getEvent1());
                 Double sim = similarity.getSimilarity();
                 weightedRatingSum += rating * sim;
                 similaritiesSum += sim;
