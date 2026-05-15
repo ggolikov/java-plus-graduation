@@ -4,8 +4,11 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.practicum.ewm.stats.proto.*;
+import ru.practicum.stats.analyzer.model.EventCountProjection;
 import ru.practicum.stats.analyzer.service.EventSimilarityService;
 import ru.practicum.stats.analyzer.service.UserActionService;
+
+import java.util.List;
 
 @Slf4j
 @GrpcService
@@ -28,14 +31,37 @@ public class RecommendationsController extends RecommendationsControllerGrpc.Rec
         eventSimilarityService.getSimilarEvents(request);
     }
 
-    @Override
-    public void getInteractionsCount(InteractionsCountRequestProto request, StreamObserver<RecommendedEventProto> responseObserver) {
+    public void getInteractionsCount(
+            InteractionsCountRequestProto request,
+            StreamObserver<RecommendedEventProto> responseObserver
+    ) {
         try {
-            Long l = userActionService.getInteractionsCount(request);
-            log.info("Interactions count: {}", l);
-//            return l
+            List<EventCountProjection> counts =
+                    userActionService.getInteractionsCount(request);
+            log.info("Request: {}", request.getEventIdList());
+            log.info("Interactions count: {}", counts);
+
+            counts.forEach(c ->
+                    log.info("eventId={}, count={}",
+                            c.getEventId(),
+                            c.getCount())
+            );
+
+            for (EventCountProjection item : counts) {
+
+                RecommendedEventProto response =
+                        RecommendedEventProto.newBuilder()
+                                .setEventId(item.getEventId())
+                                .setScore(item.getCount())
+                                .build();
+
+                responseObserver.onNext(response);
+            }
+
+            responseObserver.onCompleted();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Error in getInteractionsCount", e);
+            responseObserver.onError(e);
         }
     }
 }

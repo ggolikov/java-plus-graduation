@@ -10,6 +10,7 @@ import ru.practicum.stats.analyzer.model.Similarity;
 import ru.practicum.stats.analyzer.repository.SimilarityRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,8 +22,34 @@ public class EventSimilarityService {
     }
     @Transactional
     public void processEvent(EventSimilarityAvro event) {
-        Similarity similarity = SimilarityMapper.mapToSimilarity(event);
-        similarityRepository.save(similarity);
+
+        Similarity newSimilarity = SimilarityMapper.mapToSimilarity(event);
+
+        Optional<Similarity> existingOpt =
+                similarityRepository.findByEvent1AndEvent2(
+                        newSimilarity.getEvent1(),
+                        newSimilarity.getEvent2()
+                );
+
+        if (existingOpt.isPresent()) {
+            Similarity existing = existingOpt.get();
+
+            existing.setSimilarity(newSimilarity.getSimilarity());
+            existing.setTs(newSimilarity.getTs());
+
+            similarityRepository.save(existing);
+
+            log.info("Updated similarity for events {} and {}",
+                    existing.getEvent1(),
+                    existing.getEvent2());
+
+        } else {
+            similarityRepository.save(newSimilarity);
+
+            log.info("Created similarity for events {} and {}",
+                    newSimilarity.getEvent1(),
+                    newSimilarity.getEvent2());
+        }
     }
 
     public List<Similarity> getSimilarEvents(SimilarEventsRequestProto request) {

@@ -12,4 +12,6 @@ public interface SimilarityRepository extends JpaRepository<Similarity, Long> {
     List<Similarity> getEventsBySimilarity(Long eventId, Long maxResults);
 
     List<Similarity> findByIdIn(List<Long> ids);
+
+    Optional<Similarity> findByEvent1AndEvent2(Long event1, Long event2);
 }

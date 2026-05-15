@@ -2,16 +2,28 @@ package ru.practicum.stats.analyzer.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import ru.practicum.stats.analyzer.model.EventCountProjection;
 import ru.practicum.stats.analyzer.model.Interaction;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface InteractionRepository extends JpaRepository<Interaction, Long> {
-    @Query("SELECT sum(i.rating) FROM Interaction i WHERE i.eventId = :eventId")
-    Long countRatingByEventId(long eventId);
-
+    @Query(value = """
+        SELECT
+            i.event_id AS eventId,
+            COALESCE(SUM(i.rating), 0) AS count
+                FROM interactions i
+                WHERE i.event_id IN (:eventIds)
+                GROUP BY i.event_id
+            """, nativeQuery = true)
+    List<EventCountProjection> countRatingsByEventIds(
+            @Param("eventIds") List<Long> eventIds
+    );
    @Query("SELECT i FROM Interaction i WHERE i.userId = :userId ORDER BY i.rating DESC")
     List<Interaction> findUserActions(Long userId);
 
     Boolean existsByUserIdAndEventId(Long userId, Long eventId);
+    Optional<Interaction> findByUserIdAndEventId(Long userId, Long eventId);
 }

@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.ewm.stats.proto.*;
 import ru.practicum.stats.analyzer.mapper.InteractionMapper;
+import ru.practicum.stats.analyzer.model.EventCountProjection;
 import ru.practicum.stats.analyzer.model.Interaction;
 import ru.practicum.stats.analyzer.model.Similarity;
 import ru.practicum.stats.analyzer.repository.InteractionRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,13 +27,46 @@ public class UserActionService {
     }
     @Transactional
     public void processEvent(UserActionAvro event) {
-        Interaction interaction = InteractionMapper.mapToInteraction(event);
-        if (!interactionRepository.existsByUserIdAndEventId(event.getUserId(), event.getEventId())) {
-            interactionRepository.save(interaction);
+
+        Interaction newInteraction = InteractionMapper.mapToInteraction(event);
+
+        Optional<Interaction> existingOpt =
+                interactionRepository.findByUserIdAndEventId(
+                        newInteraction.getUserId(),
+                        newInteraction.getEventId()
+                );
+
+        if (existingOpt.isPresent()) {
+
+            Interaction existing = existingOpt.get();
+            Double existingRating = existing.getRating();
+            Double newRating = newInteraction.getRating();
+            if (newRating > existingRating && newRating <= 1.0) {
+                // update fields
+                existing.setRating(newRating);
+                existing.setTs(newInteraction.getTs());
+
+                interactionRepository.save(existing);
+
+                log.info("Updated interaction for user {} and event {}",
+                        existing.getUserId(),
+                        existing.getEventId());
+
+            }
+
+
+        } else {
+
+            interactionRepository.save(newInteraction);
+
+            log.info("Created interaction for user {} and event {}",
+                    newInteraction.getUserId(),
+                    newInteraction.getEventId());
         }
     }
-    public Long getInteractionsCount(InteractionsCountRequestProto request) {
-        return interactionRepository.countRatingByEventId(request.getEventId());
+    public List<EventCountProjection> getInteractionsCount(InteractionsCountRequestProto request) {
+        List<Long> eventIds = request.getEventIdList();
+        return interactionRepository.countRatingsByEventIds(eventIds);
     }
     public List<Interaction> getUserActions(UserPredictionsRequestProto request) {
         return interactionRepository.findUserActions(request.getUserId());
@@ -39,10 +74,10 @@ public class UserActionService {
 
     public List<Similarity> getUserPredictions(UserPredictionsRequestProto request) {
         List<Interaction> userActions = getUserActions(request);
-        List<Long> userActionsIds = userActions.stream().map(Interaction::getId).toList();
+        List<Long> userActionsIds = userActions.stream().map(Interaction::getEventId).collect(Collectors.toList());
         List<Similarity> similarities = eventSimilarityService.findSimilarEventsByIds(userActionsIds);
 
-        List<Similarity> newSimilarities = similarities.stream().filter(s -> !userActionsIds.contains(s.getEvent1()) && !userActionsIds.contains(s.getEvent2()) ).toList().subList(0, ((int) request.getMaxResults()));
+        List<Similarity> newSimilarities = similarities.stream().filter(s -> userActionsIds.contains(s.getEvent1()) && !userActionsIds.contains(s.getEvent2()) ).toList().subList(0, ((int) request.getMaxResults()));
 
         return newSimilarities;
     }

@@ -17,3 +17,83 @@ spring:
     client:
       serviceUrl:
         defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
+grpc:
+  server:
+    port: 9090
+  datasource:
+    url: jdbc:postgresql://localhost:5437/${POSTGRES_DB:analyzer}
+    driver-class-name: org.postgresql.Driver
+    username: analyzer
+    password: analyzer
+    init: DEBUG
+  sql:
+    init:
+      mode: always
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
+    defer-datasource-initialization: true
+    open-in-view: false
+    show-sql: false
+#spring:
+#  cloud:
+#    config:
+#      enabled: false
+#  application:
+#    name: analyzer
+#  datasource:
+#    url: jdbc:postgresql://localhost:5437/${POSTGRES_DB:analyzer}
+#    driver-class-name: org.postgresql.Driver
+#    username: analyzer
+#    password: analyzer
+#    init: DEBUG
+#  sql:
+#    init:
+#      mode: always
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        ddl-auto: none
+#    defer-datasource-initialization: true
+#    open-in-view: false
+#    show-sql: true
+#grpc:
+#  server:
+#    host: 127.0.0.1
+#    port: 9090
+#    reflection-service-enabled: true
+#  datasource:
+#    url: jdbc:postgresql://localhost:5437/${POSTGRES_DB:analyzer}
+#    driver-class-name: org.postgresql.Driver
+#    username: analyzer
+#    password: analyzer
+#    init: DEBUG
+#  sql:
+#    init:
+#      mode: always
+#  jpa:
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        ddl-auto: none
+#    defer-datasource-initialization: true
+#    open-in-view: false
+#    show-sql: false
+#
+#analyzer:
+#  kafka:
+#    producer:
+#      properties:
+#        bootstrapServers: localhost:9092
+#        acks: all
+#        retries: 3
+#    consumer:
+#      properties:
+#        actionsTopic: stats.user-actions.v1
+#        similaritiesTopic: stats.events-similarity.v1
+#enable:
+#  auto:
+#    commit: false
