@@ -36,4 +36,11 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long> 
     List<Interaction> findUserNewActions(Long userId);
 
     Optional<Interaction> findByUserIdAndEventId(Long userId, Long eventId);
+
+    List<Interaction> findAllByEventIdIn(List<Long> collect);
+
+    @Query(value = """
+        SELECT rating FROM interactions WHERE user_id = userId AND event_id = :eventId;
+            """, nativeQuery = true)
+    Long getRating(Long userId, Long eventId);
 }

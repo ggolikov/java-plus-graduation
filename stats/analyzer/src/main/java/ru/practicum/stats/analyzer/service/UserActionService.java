@@ -69,13 +69,32 @@ public class UserActionService {
         return interactionRepository.findUserActions(request.getUserId(), request.getMaxResults());
     }
 
-    public List<Similarity> getUserPredictions(UserPredictionsRequestProto request) {
+    public List<RecommendedEventProto> getUserPredictions(UserPredictionsRequestProto request) {
         List<Interaction> userActions = getUserActions(request);
+        List<Long> userActionsIds = userActions.stream().map(Interaction::getEventId).collect(Collectors.toList());
+
         List<Interaction> newEventsForUser = interactionRepository.findUserNewActions(request.getUserId());
+        List<RecommendedEventProto> result = new ArrayList<>();
 
-        List<Long> newUserActionsIds = newEventsForUser.stream().map(Interaction::getEventId).collect(Collectors.toList());
-        List<Similarity> similarities = eventSimilarityService.findSimilarEventsByIds(newUserActionsIds);
+        for (Interaction interaction : newEventsForUser) {
+            List<Similarity> similarEvents = eventSimilarityService.getSimilarEvents(interaction.getEventId(), userActionsIds, 20L);
 
-        return similarities;
+            Double weightedRatingSum = 0.0;
+            Double similaritiesSum = 0.0;
+
+            for (Similarity similarity : similarEvents) {
+                Long rating = interactionRepository.getRating(request.getUserId(), similarity.getEvent1());
+                Double sim = similarity.getSimilarity();
+                weightedRatingSum += rating * sim;
+                similaritiesSum += sim;
+            }
+
+            Double score = weightedRatingSum / similaritiesSum;
+
+            RecommendedEventProto recommendedEventProto = RecommendedEventProto.newBuilder()
+                    .setEventId(interaction.getEventId()).setScore(score).build();
+        }
+
+        return result;
     }
 }

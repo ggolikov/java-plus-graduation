@@ -59,4 +59,8 @@ public class EventSimilarityService {
     public List<Similarity> findSimilarEventsByIds(List<Long> ids) {
         return similarityRepository.findByIdIn(ids);
     }
+
+    public List<Similarity> getSimilarEvents(Long eventId, List<Long> eventIds, Long maxResults) {
+        return  similarityRepository.getSimilarEvents(eventId, eventIds, maxResults);
+    }
 }

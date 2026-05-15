@@ -28,17 +28,11 @@ public class RecommendationsController extends RecommendationsControllerGrpc.Rec
             StreamObserver<RecommendedEventProto> responseObserver
     ) {
         try {
-            List<Similarity> recommendations =
+            List<RecommendedEventProto> recommendations =
                     userActionService.getUserPredictions(request);
 
-            for (Similarity item : recommendations) {
-                RecommendedEventProto response =
-                        RecommendedEventProto.newBuilder()
-                                .setEventId(item.getEvent2())
-                                .setScore(item.getSimilarity())
-                                .build();
-
-                responseObserver.onNext(response);
+            for (RecommendedEventProto item : recommendations) {
+                responseObserver.onNext(item);
             }
 
             responseObserver.onCompleted();
