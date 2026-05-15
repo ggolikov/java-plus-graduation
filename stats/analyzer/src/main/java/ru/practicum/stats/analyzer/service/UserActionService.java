@@ -11,6 +11,7 @@ import ru.practicum.stats.analyzer.model.Interaction;
 import ru.practicum.stats.analyzer.model.Similarity;
 import ru.practicum.stats.analyzer.repository.InteractionRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -51,12 +52,8 @@ public class UserActionService {
                 log.info("Updated interaction for user {} and event {}",
                         existing.getUserId(),
                         existing.getEventId());
-
             }
-
-
         } else {
-
             interactionRepository.save(newInteraction);
 
             log.info("Created interaction for user {} and event {}",
@@ -69,16 +66,16 @@ public class UserActionService {
         return interactionRepository.countRatingsByEventIds(eventIds);
     }
     public List<Interaction> getUserActions(UserPredictionsRequestProto request) {
-        return interactionRepository.findUserActions(request.getUserId());
+        return interactionRepository.findUserActions(request.getUserId(), request.getMaxResults());
     }
 
     public List<Similarity> getUserPredictions(UserPredictionsRequestProto request) {
         List<Interaction> userActions = getUserActions(request);
-        List<Long> userActionsIds = userActions.stream().map(Interaction::getEventId).collect(Collectors.toList());
-        List<Similarity> similarities = eventSimilarityService.findSimilarEventsByIds(userActionsIds);
+        List<Interaction> newEventsForUser = interactionRepository.findUserNewActions(request.getUserId());
 
-        List<Similarity> newSimilarities = similarities.stream().filter(s -> userActionsIds.contains(s.getEvent1()) && !userActionsIds.contains(s.getEvent2()) ).toList().subList(0, ((int) request.getMaxResults()));
+        List<Long> newUserActionsIds = newEventsForUser.stream().map(Interaction::getEventId).collect(Collectors.toList());
+        List<Similarity> similarities = eventSimilarityService.findSimilarEventsByIds(newUserActionsIds);
 
-        return newSimilarities;
+        return similarities;
     }
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.practicum.ewm.stats.proto.*;
 import ru.practicum.stats.analyzer.model.EventCountProjection;
+import ru.practicum.stats.analyzer.model.Similarity;
 import ru.practicum.stats.analyzer.service.EventSimilarityService;
 import ru.practicum.stats.analyzer.service.UserActionService;
 
@@ -22,13 +23,57 @@ public class RecommendationsController extends RecommendationsControllerGrpc.Rec
     }
 
     @Override
-    public void getRecommendationsForUser(UserPredictionsRequestProto request, StreamObserver<RecommendedEventProto> responseObserver) {
-        userActionService.getUserPredictions(request);
+    public void getRecommendationsForUser(
+            UserPredictionsRequestProto request,
+            StreamObserver<RecommendedEventProto> responseObserver
+    ) {
+        try {
+            List<Similarity> recommendations =
+                    userActionService.getUserPredictions(request);
+
+            for (Similarity item : recommendations) {
+                RecommendedEventProto response =
+                        RecommendedEventProto.newBuilder()
+                                .setEventId(item.getEvent2())
+                                .setScore(item.getSimilarity())
+                                .build();
+
+                responseObserver.onNext(response);
+            }
+
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            log.error("Error in getRecommendationsForUser", e);
+            responseObserver.onError(e);
+        }
     }
 
     @Override
-    public void getSimilarEvents(SimilarEventsRequestProto request, StreamObserver<RecommendedEventProto> responseObserver) {
-        eventSimilarityService.getSimilarEvents(request);
+    public void getSimilarEvents(
+            SimilarEventsRequestProto request,
+            StreamObserver<RecommendedEventProto> responseObserver
+    ) {
+        try {
+            List<Similarity> similarEvents =
+                    eventSimilarityService.getSimilarEvents(request);
+
+            for (Similarity item : similarEvents) {
+                RecommendedEventProto response =
+                        RecommendedEventProto.newBuilder()
+                                .setEventId(item.getEvent2())
+                                .setScore(item.getSimilarity())
+                                .build();
+
+                responseObserver.onNext(response);
+            }
+
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            log.error("Error in getSimilarEvents", e);
+            responseObserver.onError(e);
+        }
     }
 
     public void getInteractionsCount(

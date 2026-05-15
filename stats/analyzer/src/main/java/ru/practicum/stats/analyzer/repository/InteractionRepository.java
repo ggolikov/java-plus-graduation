@@ -21,9 +21,19 @@ public interface InteractionRepository extends JpaRepository<Interaction, Long> 
     List<EventCountProjection> countRatingsByEventIds(
             @Param("eventIds") List<Long> eventIds
     );
-   @Query("SELECT i FROM Interaction i WHERE i.userId = :userId ORDER BY i.rating DESC")
-    List<Interaction> findUserActions(Long userId);
+   @Query("SELECT i FROM Interaction i WHERE i.userId = :userId ORDER BY i.rating DESC LIMIT :maxResults")
+   List<Interaction> findUserActions(Long userId, Long maxResults);
 
-    Boolean existsByUserIdAndEventId(Long userId, Long eventId);
+   @Query(value = """
+        SELECT DISTINCT event_id
+              FROM interactions
+              WHERE event_id NOT IN (
+                  SELECT event_id
+                  FROM interactions
+                  WHERE user_id = :userId
+              ) ORDER BY rating DESC;
+            """, nativeQuery = true)
+    List<Interaction> findUserNewActions(Long userId);
+
     Optional<Interaction> findByUserIdAndEventId(Long userId, Long eventId);
 }
