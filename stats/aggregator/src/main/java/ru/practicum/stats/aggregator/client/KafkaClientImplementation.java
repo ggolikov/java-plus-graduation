@@ -45,13 +45,10 @@ public class KafkaClientImplementation implements KafkaClient, AutoCloseable {
 
     private void initProducer() {
         Properties config = new Properties();
-//        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProducerProperties.getBootstrapServers());
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,  "localhost:9092");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, GeneralAvroSerializer.class.getName());
-//        config.put(ProducerConfig.ACKS_CONFIG, kafkaProducerProperties.getAcks());
         config.put(ProducerConfig.ACKS_CONFIG, "all");
-//        config.put(ProducerConfig.RETRIES_CONFIG, kafkaProducerProperties.getRetries());
         config.put(ProducerConfig.RETRIES_CONFIG, 3);
 
         producer = new KafkaProducer<>(config);
@@ -68,11 +65,9 @@ public class KafkaClientImplementation implements KafkaClient, AutoCloseable {
 
     private void initConsumer() {
         Properties config = new Properties();
-//        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConsumerProperties.getBootstrapServers());
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, UserActionDeserializer.class.getName());
-//        config.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaConsumerProperties.getGroupId());
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "telemetry.sensors.v1");
 
         consumer = new KafkaConsumer<>(config);

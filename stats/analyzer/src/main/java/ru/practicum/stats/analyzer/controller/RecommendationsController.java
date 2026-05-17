@@ -70,6 +70,7 @@ public class RecommendationsController extends RecommendationsControllerGrpc.Rec
         }
     }
 
+    @Override
     public void getInteractionsCount(
             InteractionsCountRequestProto request,
             StreamObserver<RecommendedEventProto> responseObserver
@@ -77,17 +78,8 @@ public class RecommendationsController extends RecommendationsControllerGrpc.Rec
         try {
             List<EventCountProjection> counts =
                     userActionService.getInteractionsCount(request);
-            log.info("Request: {}", request.getEventIdList());
-            log.info("Interactions count: {}", counts);
-
-            counts.forEach(c ->
-                    log.info("eventId={}, count={}",
-                            c.getEventId(),
-                            c.getCount())
-            );
 
             for (EventCountProjection item : counts) {
-
                 RecommendedEventProto response =
                         RecommendedEventProto.newBuilder()
                                 .setEventId(item.getEventId())

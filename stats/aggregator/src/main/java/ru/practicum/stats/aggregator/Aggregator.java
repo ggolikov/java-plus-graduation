@@ -8,105 +8,172 @@ import java.util.*;
 
 @Slf4j
 public class Aggregator {
-    // Список пользователей
-    Set<Long> users = new HashSet<>();
-    //  максимальный вес действий пользователя с мероприятиями
+
+    private final Set<Long> users = new HashSet<>();
+
+    // eventId -> (userId -> maxWeight)
     private final Map<Long, Map<Long, Double>> eventUserActionsWeight = new HashMap<>();
-    // общая сумма весов по мероприятиям
-    private Map<Long, Double> totalWeightsSum = new HashMap<>();
-    // частная сумма по мероприятиям
-    private Map<Long, Map<Long, Double>> minWeightsSums = new HashMap<>();
+
+    // eventId -> total weights sum
+    private final Map<Long, Double> totalWeightsSum = new HashMap<>();
+
+    // eventA -> (eventB -> min weights sum)
+    private final Map<Long, Map<Long, Double>> minWeightsSums = new HashMap<>();
 
     public List<EventSimilarityAvro> updateEventSimilarities(UserActionAvro userAction) {
         log.debug("Received event {}", userAction);
+
         Long eventId = userAction.getEventId();
         Long userId = userAction.getUserId();
-        List<EventSimilarityAvro> eventSimilarityAvroList = new ArrayList<>();
 
         users.add(userId);
-        Double oldEventAWeight = eventUserActionsWeight
+
+        double oldWeight = getCurrentUserWeight(eventId, userId);
+        double newWeight = getUserActionWeight(userAction);
+
+        boolean updated = updateEventUserWeight(eventId, userId, oldWeight, newWeight);
+
+        if (!updated) {
+            return Collections.emptyList();
+        }
+
+        double deltaWeight = newWeight - oldWeight;
+        double totalANew = updateTotalWeight(eventId, deltaWeight);
+
+        return buildSimilarities(
+                userAction,
+                eventId,
+                userId,
+                oldWeight,
+                newWeight,
+                totalANew
+        );
+    }
+
+    private double getCurrentUserWeight(Long eventId, Long userId) {
+        return eventUserActionsWeight
                 .getOrDefault(eventId, Collections.emptyMap())
                 .getOrDefault(userId, 0D);
-        Double updatedEventUserActionWeight = getUserActionWeight(userAction);
+    }
 
-        // 1. Обновим максимальный вес мероприятия по данному пользователю
-        if (!eventUserActionsWeight.containsKey(eventId)) {
-            Map<Long, Double> weightMap = new HashMap<>();
-            weightMap.put(userId, updatedEventUserActionWeight);
-            eventUserActionsWeight.put(eventId, weightMap);
-        } else {
-            Map<Long, Double> weightMap = eventUserActionsWeight.get(eventId);
+    private boolean updateEventUserWeight(Long eventId,
+                                          Long userId,
+                                          double oldWeight,
+                                          double newWeight) {
 
-            if (!weightMap.containsKey(userId)) {
-                weightMap.put(userId, 0D);
-            }
+        eventUserActionsWeight
+                .computeIfAbsent(eventId, id -> new HashMap<>());
 
-            Double currentWeight = weightMap.getOrDefault(userId, 0D);
-            oldEventAWeight = currentWeight;
+        Map<Long, Double> weightMap = eventUserActionsWeight.get(eventId);
 
-            if (updatedEventUserActionWeight > currentWeight) {
-                weightMap.put(userId, updatedEventUserActionWeight);
-            }
+        if (newWeight > oldWeight) {
+            weightMap.put(userId, newWeight);
+            return true;
         }
 
-        if (updatedEventUserActionWeight <= oldEventAWeight) {
-            return new ArrayList<>();
-        }
+        return false;
+    }
 
-        Double deltaWeight = updatedEventUserActionWeight - oldEventAWeight;
-        Double totalAOld = totalWeightsSum.getOrDefault(eventId, 0D);
-        Double totalANew = totalAOld;
+    private double updateTotalWeight(Long eventId, double deltaWeight) {
+        double updatedTotal = totalWeightsSum.getOrDefault(eventId, 0D) + deltaWeight;
+        totalWeightsSum.put(eventId, updatedTotal);
 
-        if (deltaWeight > 0) {
-            totalANew += deltaWeight;
-            totalWeightsSum.put(eventId, totalANew);
-        }
-            // Обновляем похожести со всеми мероприятиями
-            for (Long id : eventUserActionsWeight.keySet()) {
-                // Кроме текущего
-                if (!Objects.equals(id, eventId)) {
-                    Long eventA = eventId;
-                    Long eventB = id;
+        return updatedTotal;
+    }
 
-                    // 2. Обновим общую сумму весов по мероприятию (числитель)
-                    Double oldEventBWeight = eventUserActionsWeight.get(eventB).getOrDefault(userId, 0D);
+    private List<EventSimilarityAvro> buildSimilarities(UserActionAvro userAction,
+                                                        Long eventA,
+                                                        Long userId,
+                                                        double oldEventAWeight,
+                                                        double newEventAWeight,
+                                                        double totalANew) {
 
-                    //  Пользователь не взаимодействовал с мероприятием B, поэтому не вносил свой вес в коэффициент сходства этих мероприятий. Пересчитывать его нет смысла.
-                    if (oldEventBWeight != 0.0) {
-                        // Предыдущие частные суммы для этих мероприятий были следующими:
-                        Double oldMinSum = getMinSum(eventA, eventB);
+        List<EventSimilarityAvro> similarities = new ArrayList<>();
 
-                        Double totalBOld = totalWeightsSum.getOrDefault(eventB, 0D);
-                        // Обновим числитель, то есть сумму минимальных весов.
-                        // Сравним старый вклад пользователя в общую сумму и новый:
-                        Double oldMin = Math.min(oldEventAWeight, oldEventBWeight);
-                        Double newMin = Math.min(updatedEventUserActionWeight, oldEventBWeight);
-                        Double deltaMin = newMin - oldMin;
-                        Double newMinSum = oldMinSum + deltaMin;
+        for (Long eventB : eventUserActionsWeight.keySet()) {
 
-                        if (deltaMin != 0.0) {
-                            setMinSum(eventA, eventB, newMinSum);
-                        }
-
-                        // Обновим суммы в знаменателе. В знаменателе нужно пересчитать только сумму весов события A.
-                        Double denominator = Math.sqrt(totalANew) * Math.sqrt(totalBOld);
-                        Double similarity = denominator != 0.0 ? newMinSum / denominator : 0.0;
-
-                        EventSimilarityAvro eventSimilarityAvro = EventSimilarityAvro
-                                .newBuilder()
-                                .setEventA(Math.min(eventA, eventB))
-                                .setEventB(Math.max(eventB, eventA))
-                                .setScore(similarity)
-                                .setTimestamp(userAction.getTimestamp())
-                                .build();
-
-                        eventSimilarityAvroList.add(eventSimilarityAvro);
-                    }
-                }
+            if (Objects.equals(eventA, eventB)) {
+                continue;
             }
 
+            Double eventBWeight = getCurrentUserWeight(eventB, userId);
 
-        return eventSimilarityAvroList;
+            if (eventBWeight == 0.0) {
+                continue;
+            }
+
+            double newMinSum = updateMinSum(
+                    eventA,
+                    eventB,
+                    oldEventAWeight,
+                    newEventAWeight,
+                    eventBWeight
+            );
+
+            double similarity = calculateSimilarity(
+                    eventA,
+                    eventB,
+                    totalANew,
+                    newMinSum
+            );
+
+            similarities.add(buildSimilarityAvro(
+                    userAction,
+                    eventA,
+                    eventB,
+                    similarity
+            ));
+        }
+
+        return similarities;
+    }
+
+    private double updateMinSum(Long eventA,
+                                Long eventB,
+                                double oldEventAWeight,
+                                double newEventAWeight,
+                                double eventBWeight) {
+
+        double oldMinSum = getMinSum(eventA, eventB);
+
+        double oldMin = Math.min(oldEventAWeight, eventBWeight);
+        double newMin = Math.min(newEventAWeight, eventBWeight);
+
+        double deltaMin = newMin - oldMin;
+        double newMinSum = oldMinSum + deltaMin;
+
+        if (deltaMin != 0.0) {
+            setMinSum(eventA, eventB, newMinSum);
+        }
+
+        return newMinSum;
+    }
+
+    private double calculateSimilarity(Long eventA,
+                                       Long eventB,
+                                       double totalANew,
+                                       double minSum) {
+
+        double totalB = totalWeightsSum.getOrDefault(eventB, 0D);
+
+        double denominator = Math.sqrt(totalANew) * Math.sqrt(totalB);
+
+        return denominator != 0.0
+                ? minSum / denominator
+                : 0.0;
+    }
+
+    private EventSimilarityAvro buildSimilarityAvro(UserActionAvro userAction,
+                                                    Long eventA,
+                                                    Long eventB,
+                                                    double similarity) {
+
+        return EventSimilarityAvro.newBuilder()
+                .setEventA(Math.min(eventA, eventB))
+                .setEventB(Math.max(eventA, eventB))
+                .setScore(similarity)
+                .setTimestamp(userAction.getTimestamp())
+                .build();
     }
 
     private Double getUserActionWeight(UserActionAvro userAction) {
@@ -119,7 +186,7 @@ public class Aggregator {
     }
 
     public void setMinSum(long eventA, long eventB, double sum) {
-        long first  = Math.min(eventA, eventB);
+        long first = Math.min(eventA, eventB);
         long second = Math.max(eventA, eventB);
 
         minWeightsSums
@@ -128,28 +195,11 @@ public class Aggregator {
     }
 
     public double getMinSum(long eventA, long eventB) {
-        long first  = Math.min(eventA, eventB);
+        long first = Math.min(eventA, eventB);
         long second = Math.max(eventA, eventB);
 
         return minWeightsSums
                 .computeIfAbsent(first, e -> new HashMap<>())
                 .getOrDefault(second, 0.0);
     }
-
-    public Double getEventPairMinSum(Long event1, Long event2) {
-        Long eventA = Math.min(event1, event2);
-        Long eventB = Math.max(event1, event2);
-
-        Double minSum = 0.0;
-
-        for (Long user: users) {
-            Double weightA = eventUserActionsWeight.get(eventA).getOrDefault(user, 0D);
-            Double weightB = eventUserActionsWeight.get(eventB).getOrDefault(user, 0D);
-
-            minSum += Math.min(weightA, weightB);
-        }
-
-        return minSum;
-    }
-
 }

@@ -7,7 +7,10 @@ import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.common.errors.PrincipalDeserializationException;
+import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
+
+import java.io.IOException;
 
 public class BaseAvroDeserializer<T extends SpecificRecordBase> implements Deserializer<T> {
     private final DecoderFactory decoderFactory;
@@ -32,7 +35,7 @@ public class BaseAvroDeserializer<T extends SpecificRecordBase> implements Deser
             }
             BinaryDecoder decoder = decoderFactory.binaryDecoder(data, null);
             return this.reader.read(null, decoder);
-        } catch (Exception e) {
+        } catch (SerializationException | IOException e) {
             throw new PrincipalDeserializationException("Ошибка десериализации данных из топика [" + topic + "]", e);
         }
     }
