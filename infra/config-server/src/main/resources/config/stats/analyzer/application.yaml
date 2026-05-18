@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: analyzer
+  datasource:
+    url: jdbc:postgresql://localhost:5437/${POSTGRES_DB:analyzer}
+    driver-class-name: org.postgresql.Driver
+    username: analyzer
+    password: analyzer
+    init: DEBUG
+  sql:
+    init:
+      mode: always
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
+    defer-datasource-initialization: true
+    open-in-view: false
+    show-sql: true
+grpc:
+  server:
+    port: 0
+  datasource:
+    url: jdbc:postgresql://localhost:5437/${POSTGRES_DB:analyzer}
+    driver-class-name: org.postgresql.Driver
+    username: analyzer
+    password: analyzer
+    init: DEBUG
+  sql:
+    init:
+      mode: always
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        ddl-auto: none
+    defer-datasource-initialization: true
+    open-in-view: false
+    show-sql: false
+
+analyzer:
+  kafka:
+    producer:
+      properties:
+        bootstrapServers: localhost:9092
+        acks: all
+        retries: 3
+    consumer:
+      properties:
+        actionsTopic: stats.user-actions.v1
+        similaritiesTopic: stats.events-similarity.v1
+enable:
+  auto:
+    commit: false

@@ -31,3 +31,18 @@ management:
     web:
       exposure:
         include: "*"
+
+grpc:
+  server:
+    port: 0
+  client:
+    collector: # <- должно соответствовать значению в @GrpcClient
+      address: 'discovery:///collector' # адрес gRPC-сервиса
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+    analyzer: # <- должно соответствовать значению в @GrpcClient
+      address: 'discovery:///analyzer' # адрес gRPC-сервиса
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext

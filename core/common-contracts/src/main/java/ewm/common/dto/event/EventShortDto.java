@@ -18,5 +18,5 @@ public class EventShortDto {
 
     private Long initiator;
     private Boolean paid;
-    private Long views;
+    private Double rating;
 }

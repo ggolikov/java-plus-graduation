@@ -12,7 +12,7 @@ public class CompilationMapper {
                 c.getTitle(),
                 c.getPinned(),
                 c.getEvents().stream()
-                        .map(e -> EventMapper.mapToEventShortDto(e, 0L, 0L))
+                        .map(e -> EventMapper.mapToEventShortDto(e, 0D, 0L))
                         .collect(java.util.stream.Collectors.toSet())
         );
     }

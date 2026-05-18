@@ -1,7 +1,5 @@
 package ewm.event.mapper;
 
-import ewm.category.mapper.CategoryMapper;
-import ewm.category.model.Category;
 import ewm.common.dto.LocationDto;
 import ewm.common.dto.event.EventFullDto;
 import ewm.common.dto.event.EventShortDto;
@@ -36,7 +34,7 @@ public class EventMapper {
         return event;
     }
 
-    public static EventFullDto mapToEventFullDto(Event event, long views, long confirmedRequests) {
+    public static EventFullDto mapToEventFullDto(Event event, Double rating, Long confirmedRequests) {
         EventFullDto eventFullDto = new EventFullDto();
         eventFullDto.setId(event.getId());
         eventFullDto.setTitle(event.getTitle());
@@ -55,7 +53,7 @@ public class EventMapper {
         eventFullDto.setParticipantLimit(event.getParticipantLimit());
         eventFullDto.setRequestModeration(event.getRequestModeration());
         eventFullDto.setState(event.getState() == null ? null : event.getState().name());
-        eventFullDto.setViews(views);
+        eventFullDto.setRating(rating);
 
         // TODO Request
         eventFullDto.setConfirmedRequests(confirmedRequests);
@@ -63,7 +61,7 @@ public class EventMapper {
         return eventFullDto;
     }
 
-    public static EventShortDto mapToEventShortDto(Event event, long views, long confirmedRequests) {
+    public static EventShortDto mapToEventShortDto(Event event, Double rating, Long confirmedRequests) {
         EventShortDto eventShortDto = new EventShortDto();
         eventShortDto.setId(event.getId());
         eventShortDto.setTitle(event.getTitle());
@@ -72,7 +70,7 @@ public class EventMapper {
 
         // TODO Request
         eventShortDto.setConfirmedRequests(confirmedRequests);
-        eventShortDto.setViews(views);
+        eventShortDto.setRating(rating);
         eventShortDto.setEventDate(event.getEventDate());
         eventShortDto.setInitiator(event.getInitiatorId());
         eventShortDto.setPaid(event.getPaid());

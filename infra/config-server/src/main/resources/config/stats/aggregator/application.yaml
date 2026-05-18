@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: aggregator
+grpc:
+  server:
+    port: 0
+aggregator:
+  kafka:
+    topic:
+      actions: stats.user-actions.v1
+      similarities: stats.events-similarity.v1
+    consumer:
+      properties:
+        bootstrap-servers: localhost:9092
+        groupId: consumer-service-1
+        incomingTopic: stats.user-actions.v1
+        outgoingTopic: stats.events-similarity.v1
+    producer:
+      properties:
+        bootstrapServers=localhost: 9092
+        acks: all
+        retries: 3
+        topic:
+          similarities: stats.events-similarity.v1
+
